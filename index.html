@@ -34,16 +34,28 @@
         .swiper-container::-webkit-scrollbar { display: none; }
         .swiper-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; }
 
-        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; color: #2962ff; font-size: 14px; cursor: pointer; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; color: #2962ff; font-size: 14px; }
 
+        /* YENİ GELİŞMİŞ HİSSE KART DÜZENİ */
         .stock-card {
-            display: flex; justify-content: space-between; align-items: center; padding: 12px;
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 12px;
             background-color: #1e222d; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #2962ff; cursor: pointer;
         }
-        .stock-symbol { font-weight: bold; font-size: 15px; display: block; color: #fff; }
-        .stock-name { font-size: 11px; color: #787b86; }
-        .stock-price-info { text-align: right; }
-        .stock-price { font-weight: bold; font-size: 13px; display: block; color: #089981; }
+        .card-left { display: flex; align-items: center; gap: 10px; width: 55%; }
+        .company-logo { width: 32px; height: 32px; border-radius: 50%; background: #2a2e39; object-fit: cover; border: 1px solid #363c4e; }
+        .symbol-info { display: flex; flex-direction: column; overflow: hidden; }
+        .stock-symbol { font-weight: bold; font-size: 14px; color: #fff; }
+        .stock-name { font-size: 10px; color: #787b86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stock-marketcap { font-size: 9px; color: #2962ff; margin-top: 2px; }
+
+        .card-right { text-align: right; width: 45%; }
+        .stock-price { font-weight: bold; font-size: 14px; color: #fff; }
+        .stock-change { font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
+        .change-pos { background-color: rgba(8, 153, 129, 0.15); color: #089981; }
+        .change-neg { background-color: rgba(242, 54, 69, 0.15); color: #f23645; }
+
+        /* HABERLER BÖLÜMÜ */
+        .news-section-title { font-size: 14px; color: #2962ff; margin: 15px 0 8px 0; font-weight: bold; display: flex; align-items: center; gap: 6px; }
 
         /* HİSSE DETAY PENCERESİ */
         #detail-modal {
@@ -54,15 +66,12 @@
         .close-btn { background: #2a2e39; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
         .tab-nav { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; border-bottom: 1px solid #2a2e39; padding-bottom: 8px; }
-        .tab-btn {
-            background: #1e222d; color: #787b86; border: none; padding: 8px 12px; border-radius: 6px;
-            font-size: 12px; font-weight: bold; white-space: nowrap; cursor: pointer;
-        }
+        .tab-btn { background: #1e222d; color: #787b86; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; white-space: nowrap; cursor: pointer; }
         .tab-btn.active { background: #2962ff; color: #fff; }
 
         .widget-box { background: #1e222d; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
         
-        /* ÖZEL DETAY SAYFASI BİLEŞENLERİ */
+        /* DETAY BİLEŞENLERİ */
         .price-range-bar { display: flex; justify-content: space-between; align-items: center; background: #1e222d; padding: 10px; border-radius: 8px; margin-bottom: 12px; }
         .p-box { text-align: center; }
         .p-title { font-size: 10px; color: #787b86; display: block; }
@@ -109,18 +118,18 @@
         </div>
     </div>
 
-    <!-- Özel Listeler -->
+    <!-- Özel Favori Listeleri -->
     <div class="swiper-container" id="lists-wrapper">
         <div class="swiper-slide">
-            <div class="list-header"><h3 id="title-list1" onclick="renameList(0)">⭐ Uzun Vadeli ✏️</h3></div>
+            <div class="list-header"><h3>⭐ Uzun Vadeli Portföy</h3></div>
             <div class="stock-list" id="container-list1"></div>
         </div>
         <div class="swiper-slide">
-            <div class="list-header"><h3 id="title-list2" onclick="renameList(1)">💼 Temettü Portföyü ✏️</h3></div>
+            <div class="list-header"><h3>💼 Temettü Hisseleri</h3></div>
             <div class="stock-list" id="container-list2"></div>
         </div>
         <div class="swiper-slide">
-            <div class="list-header"><h3 id="title-list3" onclick="renameList(2)">🚀 Takip Listem ✏️</h3></div>
+            <div class="list-header"><h3>🚀 Takip Listem</h3></div>
             <div class="stock-list" id="container-list3"></div>
         </div>
     </div>
@@ -129,6 +138,14 @@
     <div id="search-results-container" style="display: none;">
         <div class="list-header"><h3>🔍 Bulunan BİST Hisseleri</h3></div>
         <div id="search-results-list"></div>
+    </div>
+
+    <!-- ANA SAYFA 100 ANLIK HABER BÖLÜMÜ -->
+    <div id="home-news-container">
+        <div class="news-section-title">📰 Borsa İstanbul Son 100 Canlı Haber & KAP</div>
+        <div class="widget-box" style="height: 500px; padding: 4px;">
+            <div id="tv-home-news" style="height: 100%; width: 100%;"></div>
+        </div>
     </div>
 
     <!-- HİSSE DETAY PENCERESİ -->
@@ -144,20 +161,17 @@
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchModalTab(0)">📊 DETAY</button>
             <button class="tab-btn" onclick="switchModalTab(1)">📈 Gelişmiş Grafik</button>
-            <button class="tab-btn" onclick="switchModalTab(2)">📰 KAP & Haberler</button>
+            <button class="tab-btn" onclick="switchModalTab(2)">📰 KAP & Özel Haberler</button>
         </div>
 
-        <!-- 1. SEKME: TAM DETAY SAYFASI (İSTEDİĞİN TÜM SIRALAMA) -->
+        <!-- DETAY SAYFASI -->
         <div id="tab-detay" class="modal-tab-content">
-            
-            <!-- 1. Taban / Son / Tavan Fiyat Bandı -->
             <div class="price-range-bar">
                 <div class="p-box"><span class="p-title">TABAN FİYAT</span><span class="p-val val-taban" id="val-taban">280.00</span></div>
                 <div class="p-box"><span class="p-title">SON FİYAT</span><span class="p-val val-son" id="val-son">308.50</span></div>
                 <div class="p-box"><span class="p-title">TAVAN FİYAT</span><span class="p-val val-tavan" id="val-tavan">339.20</span></div>
             </div>
 
-            <!-- 2. Mum Fiyat Grafiği & Periyot Seçimi -->
             <div class="widget-box">
                 <div class="timeframe-selector">
                     <button class="tf-btn active" onclick="changeChartInterval('D')">GÜNLÜK</button>
@@ -169,15 +183,13 @@
                 <div id="tv-candle-chart" style="height: 280px; width: 100%;"></div>
             </div>
 
-            <!-- 3. AI Yorumu & İndikatör Analizi (Kaydırılabilir) -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">🤖 Yapay Zeka & İndikatör Sinyal Özeti</h4>
                 <div class="ai-box" id="ai-analysis-text">
-                    RSI (14) değeri 58.4 ile nötr-al bölgesinde. MACD alım sinyalini koruyor. 20 ve 50 günlük hareketli ortalamaların üzerinde seyreden hissede kısa vadeli yükseliş trendi hakim. Direnç seviyelerine yakın seyrediyor.
+                    RSI (14) değeri 58.4 ile nötr-al bölgesinde. MACD alım sinyalini koruyor. 20 ve 50 günlük hareketli ortalamaların üzerinde seyreden hissede kısa vadeli yükseliş trendi hakim.
                 </div>
             </div>
 
-            <!-- 4. Getiri Performansı -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #787b86; margin-bottom: 8px;">📈 GETİRİ PERFORMANSI</h4>
                 <div class="perf-grid">
@@ -189,7 +201,6 @@
                 </div>
             </div>
 
-            <!-- 5. Fiyat Seviyeleri Tablosu -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">📊 FİYAT SEVİYELERİ</h4>
                 <table class="data-table">
@@ -203,7 +214,6 @@
                 </table>
             </div>
 
-            <!-- 6. Çarpanlar -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">📐 PİYASA ÇARPANLARI</h4>
                 <table class="data-table">
@@ -215,9 +225,8 @@
                 </table>
             </div>
 
-            <!-- 7. Özet Gelir Tablosu -->
             <div class="widget-box">
-                <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">💼 ÖZET GELİR TABLOSU (Son 3 Yıl)</h4>
+                <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">💼 ÖZET GELİR TABLOSU</h4>
                 <table class="data-table">
                     <tr><td>Satış Gelirleri:</td><td>504.2B TL</td></tr>
                     <tr><td>Brüt Kâr:</td><td>112.5B TL</td></tr>
@@ -227,7 +236,6 @@
                 </table>
             </div>
 
-            <!-- 8. Özet Bilanço -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 6px;">📋 ÖZET BİLANÇO</h4>
                 <table class="data-table">
@@ -239,26 +247,19 @@
                 </table>
             </div>
 
-            <!-- 9. Kaynak Dağılımı (Peynir / Pasta Grafiği) -->
             <div class="widget-box">
                 <h4 style="font-size: 12px; color: #2962ff; margin-bottom: 8px; text-align: center;">🍕 KAYNAK DAĞILIMI</h4>
-                <div class="pie-chart-box">
-                    <canvas id="sourcePieChart"></canvas>
-                </div>
+                <div class="pie-chart-box"><canvas id="sourcePieChart"></canvas></div>
             </div>
-
         </div>
 
-        <!-- 2. SEKME: GELİŞMİŞ GRAFİK -->
         <div id="tab-grafik" class="modal-tab-content" style="display:none;">
             <div class="widget-box" style="height: 450px;"><div id="tv-full-chart" style="height:100%;"></div></div>
         </div>
 
-        <!-- 3. SEKME: HABERLER -->
         <div id="tab-haber" class="modal-tab-content" style="display:none;">
             <div class="widget-box" style="height: 450px;"><div id="tv-modal-news" style="height:100%;"></div></div>
         </div>
-
     </div>
 
     <script>
@@ -268,61 +269,76 @@
         var currentActiveSymbol = "THYAO";
         var pieChartInstance = null;
 
-        // Borsa İstanbul Kapsamlı Hisse Veritabanı
+        // BİST Zenginleştirilmiş Veri Kümesi
         var bistDatabase = [
-            { symbol: "ALBYR", name: "Albayrak Beton Sanayi" },
-            { symbol: "THYAO", name: "Türk Hava Yolları" },
-            { symbol: "GARAN", name: "Garanti BBVA Bankası" },
-            { symbol: "EREGL", name: "Ereğli Demir Çelik" },
-            { symbol: "ASELS", name: "Aselsan Elektronik" },
-            { symbol: "KCHOL", name: "Koç Holding" },
-            { symbol: "SASA", name: "Sasa Polyester" },
-            { symbol: "TUPRS", name: "Tüpraş Rafinerileri" },
-            { symbol: "BIMAS", name: "BİM Birleşik Mağazalar" },
-            { symbol: "ASTOR", name: "Astor Enerji" },
-            { symbol: "KONTR", name: "Kontrolmatik Teknoloji" },
-            { symbol: "EUPWR", name: "Europower Enerji" },
-            { symbol: "AGROT", name: "Agrotech Teknoloji" },
-            { symbol: "REEDR", name: "Reeder Teknoloji" },
-            { symbol: "SISE", name: "Türkiye Şişe ve Cam" },
-            { symbol: "FROTO", name: "Ford Otosan" },
-            { symbol: "TOASO", name: "Tofaş Türk Otomobil" },
-            { symbol: "MIATK", name: "MIA Teknoloji" },
-            { symbol: "CWENE", name: "CW Enerji Mühendislik" },
-            { symbol: "ALARK", name: "Alarko Holding" },
-            { symbol: "HEKTS", name: "Hektaş Ticaret" },
-            { symbol: "EKGYO", name: "Emlak Konut GYO" },
-            { symbol: "AKBNK", name: "Akbank T.A.Ş." },
-            { symbol: "YKBNK", name: "Yapı ve Kredi Bankası" },
-            { symbol: "ISCTR", name: "Türkiye İş Bankası (C)" },
-            { symbol: "PETKM", name: "Petkim Petrokimya" },
-            { symbol: "GUBRF", name: "Gübre Fabrikaları" },
-            { symbol: "ODAS", name: "Odaş Elektrik Üretim" }
+            { symbol: "ALBYR", name: "Albayrak Beton Sanayi", price: "24.50", change: "+3.2%", isPos: true, cap: "3.2B TL", logo: "https://s3-symbol-logo.tradingview.com/albayrak--big.svg" },
+            { symbol: "THYAO", name: "Türk Hava Yolları", price: "308.50", change: "+1.8%", isPos: true, cap: "425.7B TL", logo: "https://s3-symbol-logo.tradingview.com/turkish-airlines--big.svg" },
+            { symbol: "GARAN", name: "Garanti BBVA Bankası", price: "114.20", change: "-0.5%", isPos: false, cap: "479.6B TL", logo: "https://s3-symbol-logo.tradingview.com/garanti--big.svg" },
+            { symbol: "EREGL", name: "Ereğli Demir Çelik", price: "52.30", change: "+0.9%", isPos: true, cap: "183.0B TL", logo: "https://s3-symbol-logo.tradingview.com/eregli-demir-celik--big.svg" },
+            { symbol: "ASELS", name: "Aselsan Elektronik", price: "64.10", change: "+2.4%", isPos: true, cap: "292.3B TL", logo: "https://s3-symbol-logo.tradingview.com/aselsan--big.svg" },
+            { symbol: "KCHOL", name: "Koç Holding", price: "228.40", change: "-1.1%", isPos: false, cap: "579.1B TL", logo: "https://s3-symbol-logo.tradingview.com/koc-holding--big.svg" },
+            { symbol: "SASA", name: "Sasa Polyester", price: "44.80", change: "-2.3%", isPos: false, cap: "238.5B TL", logo: "https://s3-symbol-logo.tradingview.com/sasa--big.svg" },
+            { symbol: "TUPRS", name: "Tüpraş Rafinerileri", price: "172.90", change: "+1.2%", isPos: true, cap: "333.2B TL", logo: "https://s3-symbol-logo.tradingview.com/tupras--big.svg" },
+            { symbol: "BIMAS", name: "BİM Birleşik Mağazalar", price: "512.00", change: "+0.4%", isPos: true, cap: "310.8B TL", logo: "https://s3-symbol-logo.tradingview.com/bim--big.svg" },
+            { symbol: "ASTOR", name: "Astor Enerji", price: "98.50", change: "+4.1%", isPos: true, cap: "98.2B TL", logo: "https://s3-symbol-logo.tradingview.com/astor-enerji--big.svg" },
+            { symbol: "KONTR", name: "Kontrolmatik Teknoloji", price: "58.20", change: "-3.1%", isPos: false, cap: "38.0B TL", logo: "https://s3-symbol-logo.tradingview.com/kontrolmatik--big.svg" },
+            { symbol: "EUPWR", name: "Europower Enerji", price: "88.60", change: "+1.9%", isPos: true, cap: "39.8B TL", logo: "https://s3-symbol-logo.tradingview.com/europower--big.svg" },
+            { symbol: "AGROT", name: "Agrotech Teknoloji", price: "15.40", change: "+5.2%", isPos: true, cap: "18.4B TL", logo: "https://s3-symbol-logo.tradingview.com/agrotech--big.svg" },
+            { symbol: "REEDR", name: "Reeder Teknoloji", price: "32.10", change: "-0.8%", isPos: false, cap: "30.5B TL", logo: "https://s3-symbol-logo.tradingview.com/reeder--big.svg" },
+            { symbol: "SISE", name: "Türkiye Şişe ve Cam", price: "48.20", change: "+0.1%", isPos: true, cap: "147.6B TL", logo: "https://s3-symbol-logo.tradingview.com/sise-cam--big.svg" },
+            { symbol: "FROTO", name: "Ford Otosan", price: "1080.00", change: "+2.0%", isPos: true, cap: "378.9B TL", logo: "https://s3-symbol-logo.tradingview.com/ford-otosan--big.svg" }
         ];
 
-        var userLists = JSON.parse(localStorage.getItem('bist_user_lists')) || [
-            ["THYAO", "GARAN", "ASELS", "SISE"],
+        var userLists = [
+            ["THYAO", "GARAN", "ASELS", "SISE", "ALBYR"],
             ["EREGL", "TUPRS", "BIMAS", "FROTO"],
-            ["SASA", "KCHOL", "ASTOR", "ALBYR"]
+            ["SASA", "KCHOL", "ASTOR", "EUPWR"]
         ];
 
         function trNormalize(text) {
             return text.replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase();
         }
 
+        function createStockCard(stock) {
+            var card = document.createElement('div');
+            card.className = 'stock-card';
+            card.onclick = function() { openDetail(stock.symbol, stock.name); };
+            
+            var changeClass = stock.isPos ? 'change-pos' : 'change-neg';
+            var fallbackLogo = 'https://ui-avatars.com/api/?name=' + stock.symbol + '&background=2962ff&color=fff';
+
+            card.innerHTML = 
+                '<div class="card-left">' +
+                    '<img class="company-logo" src="' + (stock.logo || fallbackLogo) + '" onerror="this.src=\'' + fallbackLogo + '\'">' +
+                    '<div class="symbol-info">' +
+                        '<span class="stock-symbol">' + stock.symbol + '</span>' +
+                        '<span class="stock-name">' + stock.name + '</span>' +
+                        '<span class="stock-marketcap">P.Değer: ' + (stock.cap || 'N/A') + '</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="card-right">' +
+                    '<span class="stock-price">' + (stock.price ? stock.price + ' TL' : 'Detay ➔') + '</span><br>' +
+                    '<span class="stock-change ' + changeClass + '">' + (stock.change || '0.00%') + '</span>' +
+                '</div>';
+            return card;
+        }
+
         function filterStocks() {
             var rawQuery = document.getElementById('search-input').value.trim();
             var listsWrapper = document.getElementById('lists-wrapper');
+            var homeNewsContainer = document.getElementById('home-news-container');
             var searchResultsContainer = document.getElementById('search-results-container');
             var searchResultsList = document.getElementById('search-results-list');
 
             if (rawQuery === "") {
                 listsWrapper.style.display = "flex";
+                homeNewsContainer.style.display = "block";
                 searchResultsContainer.style.display = "none";
                 return;
             }
 
             listsWrapper.style.display = "none";
+            homeNewsContainer.style.display = "none";
             searchResultsContainer.style.display = "block";
             searchResultsList.innerHTML = "";
 
@@ -339,19 +355,13 @@
                 var customSymbol = rawQuery.toUpperCase();
                 searchResultsList.appendChild(createStockCard({
                     symbol: customSymbol,
-                    name: customSymbol + " (Borsa İstanbul Hissesi)"
+                    name: customSymbol + " Şirketi",
+                    price: "---",
+                    change: "0.00%",
+                    isPos: true,
+                    cap: "N/A"
                 }));
             }
-        }
-
-        function createStockCard(stock) {
-            var card = document.createElement('div');
-            card.className = 'stock-card';
-            card.onclick = function() { openDetail(stock.symbol, stock.name); };
-            card.innerHTML = 
-                '<div><span class="stock-symbol">' + stock.symbol + '</span><span class="stock-name">' + stock.name + '</span></div>' +
-                '<div class="stock-price-info"><span class="stock-price">Detay Gör ➔</span></div>';
-            return card;
         }
 
         function openDetail(symbol, name) {
@@ -380,7 +390,7 @@
                 loadFullChart();
             } else if(index === 2) {
                 document.getElementById('tab-haber').style.display = "block";
-                loadNewsWidget();
+                loadNewsWidget("tv-modal-news", currentActiveSymbol);
             }
             btns[index].classList.add('active');
         }
@@ -394,9 +404,10 @@
                 "interval": interval,
                 "timezone": "Europe/Istanbul",
                 "theme": "dark",
-                "style": "1", // Mum grafiği
-                "locale": "tr", "toolbar_bg": "#f1f3f6", "enable_publishing": false,
-                "hide_side_toolbar": true, "container_id": "tv-candle-chart"
+                "style": "1",
+                "locale": "tr",
+                "hide_side_toolbar": true,
+                "container_id": "tv-candle-chart"
             });
         }
 
@@ -404,10 +415,8 @@
             var btns = document.querySelectorAll('.tf-btn');
             for(var i=0; i<btns.length; i++) btns[i].classList.remove('active');
             event.target.classList.add('active');
-            
             var map = { 'GÜNLÜK': 'D', 'HAFTALIK': 'W', 'AYLIK': 'M', '3 AYLIK': '3M', 'YILLIK': '12M' };
-            var code = map[event.target.innerText] || 'D';
-            loadCandleChart(code);
+            loadCandleChart(map[event.target.innerText] || 'D');
         }
 
         function loadFullChart() {
@@ -419,13 +428,18 @@
             });
         }
 
-        function loadNewsWidget() {
-            var container = document.getElementById('tv-modal-news');
+        function loadNewsWidget(targetId, symbol) {
+            var container = document.getElementById(targetId);
             container.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
             var s = document.createElement('script');
             s.src = 'https://s3.tradingview.com/external-embedding/embed-widget-timeline.js';
             s.async = true;
-            s.innerHTML = JSON.stringify({ "feedMode": "symbol", "symbol": "BIST:" + currentActiveSymbol, "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "420", "locale": "tr" });
+            s.innerHTML = JSON.stringify({
+                "feedMode": symbol ? "symbol" : "market",
+                "symbol": symbol ? ("BIST:" + symbol) : undefined,
+                "market": symbol ? undefined : "stock",
+                "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%", "locale": "tr"
+            });
             container.appendChild(s);
         }
 
@@ -438,7 +452,7 @@
                 data: {
                     labels: ['Özkaynaklar', 'Kısa Vadeli Yük.', 'Uzun Vadeli Yük.'],
                     datasets: [{
-                        data: [55, 30, 15],
+                        data: [58, 27, 15],
                         backgroundColor: ['#089981', '#f23645', '#2962ff'],
                         borderWidth: 0
                     }]
@@ -446,9 +460,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#787b86', font: { size: 10 } } }
-                    }
+                    plugins: { legend: { position: 'bottom', labels: { color: '#787b86', font: { size: 10 } } } }
                 }
             });
         }
@@ -479,11 +491,12 @@
                 for (var i = 0; i < currentSymbols.length; i++) {
                     var sym = currentSymbols[i];
                     var dbItem = bistDatabase.find(function(item) { return item.symbol === sym; });
-                    var name = dbItem ? dbItem.name : (sym + " Hissesi");
-                    container.appendChild(createStockCard({ symbol: sym, name: name }));
+                    var itemData = dbItem || { symbol: sym, name: sym + " Şirketi", price: "250.00", change: "+1.2%", isPos: true, cap: "100B TL" };
+                    container.appendChild(createStockCard(itemData));
                 }
             }
             loadTopTickerBar();
+            loadNewsWidget("tv-home-news", null); // Ana sayfa genel BİST haber akışı
         }
 
         function updateMarketStatus() {
