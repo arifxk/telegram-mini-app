@@ -1,28 +1,107 @@
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--tg-theme-bg-color, #ffffff);
-    color: var(--tg-theme-text-color, #000000);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.container {
+body {
+    background-color: #121722;
+    color: #f0f3f8;
+    padding: 12px;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    background-color: #121722;
+    padding-bottom: 10px;
+    z-index: 100;
+}
+
+.user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.live-badge {
+    background-color: #00c853;
+    color: #000;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 800;
+}
+
+#search-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #2a2e39;
+    background-color: #1e222d;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+}
+
+.stock-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px;
+    background-color: #1e222d;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    border-left: 4px solid #2a2e39;
+}
+
+.stock-symbol {
+    font-weight: bold;
+    font-size: 16px;
+    display: block;
+}
+
+.stock-name {
+    font-size: 11px;
+    color: #787b86;
+}
+
+.stock-price-info {
+    text-align: right;
+}
+
+.stock-price {
+    font-weight: bold;
+    font-size: 15px;
+    display: block;
+}
+
+.stock-change {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-top: 2px;
+}
+
+.up {
+    color: #089981;
+    background-color: rgba(8, 153, 129, 0.15);
+    border-left-color: #089981 !important;
+}
+
+.down {
+    color: #f23645;
+    background-color: rgba(242, 54, 69, 0.15);
+    border-left-color: #f23645 !important;
+}
+
+.loading {
     text-align: center;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-button {
-    background-color: var(--tg-theme-button-color, #2481cc);
-    color: var(--tg-theme-button-text-color, #ffffff);
-    border: none;
-    padding: 12px 24px;
-    font-size: 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 15px;
+    color: #787b86;
 }
