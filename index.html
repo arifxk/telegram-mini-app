@@ -63,9 +63,14 @@
             color: #fff;
             font-size: 14px;
             outline: none;
+            text-transform: uppercase;
         }
 
-        /* Yana Kaydırmalı Kapsayıcı (Pure CSS Scroll Snap) */
+        #search-input::placeholder {
+            text-transform: none;
+        }
+
+        /* Yana Kaydırmalı Kapsayıcı */
         .swiper-container {
             display: flex;
             overflow-x: auto;
@@ -153,11 +158,26 @@
             100% { opacity: 1; }
         }
 
+        /* Haberlerin Kaydırılabilir Alanı (Max Yükseklik) */
+        .news-container {
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .news-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .news-container::-webkit-scrollbar-thumb {
+            background: #2a2e39;
+            border-radius: 4px;
+        }
+
         .news-card {
             background-color: #1e222d;
             padding: 12px;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border-left: 3px solid #2962ff;
         }
 
@@ -175,11 +195,12 @@
             </div>
         </div>
 
-        <input type="text" id="search-input" placeholder="Hisse Ara (Örn: THYAO, SASA)..." oninput="filterStocks()">
+        <!-- Arama Çubuğu -->
+        <input type="text" id="search-input" placeholder="Hisse Ara (Örn: THYAO, Tüpraş)..." oninput="filterStocks()">
     </div>
 
     <!-- Kaydırmalı Liste Kapsayıcısı -->
-    <div class="swiper-container">
+    <div class="swiper-container" id="lists-wrapper">
         <!-- Liste 1 -->
         <div class="swiper-slide">
             <div class="list-header">
@@ -201,6 +222,14 @@
             </div>
             <div class="stock-list" id="container-list3"></div>
         </div>
+    </div>
+
+    <!-- Arama Sonuçları İçin Gizli Kapsayıcı -->
+    <div id="search-results-container" style="display: none;">
+        <div class="list-header">
+            <h3>🔍 Arama Sonuçları</h3>
+        </div>
+        <div id="search-results-list"></div>
     </div>
 
     <!-- ALT KISIM: ANLIK HABER AKIŞI -->
@@ -225,6 +254,7 @@
             ["SASA", "KCHOL"]
         ];
 
+        // Genişletilmiş BIST Havuzu
         var stocks = [
             { symbol: "THYAO", name: "Türk Hava Yolları", price: "298.50", change: "2.45" },
             { symbol: "GARAN", name: "Garanti Bankası", price: "112.10", change: "-0.80" },
@@ -233,14 +263,67 @@
             { symbol: "KCHOL", name: "Koç Holding", price: "210.40", change: "-1.50" },
             { symbol: "SASA", name: "Sasa Polyester", price: "42.10", change: "0.00" },
             { symbol: "TUPRS", name: "Tüpraş", price: "175.00", change: "1.30" },
-            { symbol: "BIMAS", name: "BİM Mağazalar", price: "510.00", change: "1.60" }
+            { symbol: "BIMAS", name: "BİM Mağazalar", price: "510.00", change: "1.60" },
+            { symbol: "AKBNK", name: "Akbank", price: "58.20", change: "0.90" },
+            { symbol: "YKBNK", name: "Yapı Kredi Bankası", price: "31.40", change: "-0.40" },
+            { symbol: "SISE", name: "Şişecam", price: "49.80", change: "1.10" },
+            { symbol: "HEKTS", name: "Hektaş", price: "14.20", change: "-2.10" },
+            { symbol: "ASTOR", name: "Astor Enerji", price: "98.50", change: "4.50" },
+            { symbol: "KONTR", name: "Kontrolmatik", price: "52.30", change: "2.10" }
         ];
 
+        // Genişletilmiş Canlı Haber Listesi (50+ Akış Şablonu)
         var newsData = [
-            { title: "KAP: THYAO yeni uçak sipariş detaylarını açıkladı.", time: "10 Dk Önce" },
-            { title: "TCMB Faiz Kararı Sonrası BIST 100 Endeksi Yükselişte.", time: "25 Dk Önce" },
-            { title: "EREGL: Temettü dağıtım tarihi genel kurulda onaylandı.", time: "1 Saat Önce" },
-            { title: "Küresel Piyasalar Fed Açıklamalarına Odaklandı.", time: "2 Saat Önce" }
+            { title: "KAP: THYAO yeni uçak sipariş detaylarını ve filoya katılım takvimini açıkladı.", time: "5 Dk Önce" },
+            { title: "TCMB Faiz Kararı Sonrası BIST 100 Endeksi bankacılık öncülüğünde yükselişte.", time: "12 Dk Önce" },
+            { title: "EREGL: 2026 yılı temettü dağıtım tarihi genel kurulda oy çokluğuyla onaylandı.", time: "22 Dk Önce" },
+            { title: "TUPRS: Rafineri bakım çalışmaları tamamlandı, tam kapasite üretime geçildi.", time: "35 Dk Önce" },
+            { title: "Küresel Piyasalar Fed Açıklamalarına Odaklandı: Ons Altın ve Petrol Hareketli.", time: "48 Dk Önce" },
+            { title: "ASELS: Savunma Sanayii Başkanlığı ile 45 Milyon $ tutarında yeni sözleşme imzalandı.", time: "1 Saat Önce" },
+            { title: "BIST 100 Endeksi günü %1.2 yükselişle 10.450 puan seviyesinden tamamladı.", time: "1 Saat Önce" },
+            { title: "KCHOL: İştirak modeliyle yenilenebilir enerji yatırımlarına 100 milyon $ bütçe ayrıldı.", time: "2 Saat Önce" },
+            { title: "SASA: Adana tesislerindeki yeni poy üretim hattı devreye alındı.", time: "2 Saat Önce" },
+            { title: "BIMAS: Yılın ilk yarısında 120 yeni mağaza açılışı gerçekleştirildiğini duyurdu.", time: "3 Saat Önce" },
+            { title: "AKBNK: Yabancı kurumsal yatırımcıların hisse alım oranı %42 seviyesine yükseldi.", time: "3 Saat Önce" },
+            { title: "SISE: Avrupa pazarına yönelik cam ambalaj ihracat sözleşmesi güncellendi.", time: "4 Saat Önce" },
+            { title: "SPK: Haftalık bülten yayımlandı, 2 yeni şirketin halka arzına onay verildi.", time: "4 Saat Önce" },
+            { title: "ASTOR: Orta Doğu bölgesine 12 milyon Euro değerinde transformatör ihraç edecek.", time: "5 Saat Önce" },
+            { title: "KONTR: Depolamalı rüzgar enerjisi santrali projesi için ön lisans alındı.", time: "5 Saat Önce" },
+            { title: "Hazine ve Maliye Bakanlığı: Dış borçlanma ihraçlarına yatırımcı ilgisi yüksek.", time: "6 Saat Önce" },
+            { title: "Otomotiv Satışları: Temmuz ayında ticari araç satışlarında %8 artış kaydedildi.", time: "6 Saat Önce" },
+            { title: "Brent Petrol: Arz endişeleriyle varil başına 84$ seviyesinin üzerine tırmandı.", time: "7 Saat Önce" },
+            { title: "YKBNK: Dijital bankacılık altyapı yatırımları için yeni teknoloji ortaklığı duyuruldu.", time: "7 Saat Önce" },
+            { title: "BIST Sektör Endeksleri: Teknoloji ve Enerji hisseleri günü primle kapattı.", time: "8 Saat Önce" },
+            { title: "BDDK: Bankacılık sektörü net kârı geçen yılın aynı dönemine göre dengeli seyrediyor.", time: "8 Saat Önce" },
+            { title: "KAP: GUBRF gübre hammaddesi tedarik anlaşmasını 3 yıl süreyle uzattı.", time: "9 Saat Önce" },
+            { title: "Çelik İhracatçıları Birliği: AB kotasındaki düzenlemeler ihracatı olumlu etkileyecek.", time: "9 Saat Önce" },
+            { title: "Dolar/TL ve Euro/TL paritesinde akşam seansı sakin seyrediyor.", time: "10 Saat Önce" },
+            { title: "HEKTS: Tarımsal ar-ge tesisinde yeni nesil gübre üretimine başlandığını açıkladı.", time: "10 Saat Önce" },
+            { title: "BIST 30 Hisselerinde Açığa Satış ve Kredili İşlem Yasakları Güncellendi.", time: "11 Saat Önce" },
+            { title: "Ticaret Bakanlığı: Dış ticaret açığında yıllık bazda gerileme devam ediyor.", time: "11 Saat Önce" },
+            { title: "Enerji Piyasası Düzenleme Kurumu (EPDK): Elektrik üretim lisansları yayınlandı.", time: "12 Saat Önce" },
+            { title: "ABD Merkez Bankası (Fed) üyelerinden faiz patikasına dair temkinli mesajlar.", time: "12 Saat Önce" },
+            { title: "Yabancı Yatırımcılar geçen hafta net 150 milyon dolarlık hisse senedi satın aldı.", time: "13 Saat Önce" },
+            { title: "KAP: PETKM üretim tesislerinde periyodik bakım duruşunun sona erdiğini bildirdi.", time: "13 Saat Önce" },
+            { title: "Turizm Gelirleri: İkinci çeyrek verilerinde rekor artış kaydedildi.", time: "14 Saat Önce" },
+            { title: "Bursa Çimento: Fabrika modernizasyon yatırımı tamamlanarak üretime başlandı.", time: "14 Saat Önce" },
+            { title: "JPMorgan Türkiye için büyüme tahminlerini yukarı yönlü revize etti.", time: "15 Saat Önce" },
+            { title: "Altın Ons Fiyatı küresel enflasyon verileri öncesinde dar bantta sıkıştı.", time: "15 Saat Önce" },
+            { title: "KAP: FROTO yeni elektrikli ticari araç modelinin seri üretimine geçti.", time: "16 Saat Önce" },
+            { title: "Teknoloji Endeksi (XUTEK) son 1 ayın en yüksek işlem hacmine ulaştı.", time: "16 Saat Önce" },
+            { title: "Borsa İstanbul: VİOP akşam seansında endeks kontratları yatay seyrediyor.", time: "17 Saat Önce" },
+            { title: "İSO 500 Listesi Açıklandı: Sanayi devlerinin üretimden satışları arttı.", time: "17 Saat Önce" },
+            { title: "TOFAŞ: Stellantis marka hakları devir teslim sürecine dair bilgilendirme yaptı.", time: "18 Saat Önce" },
+            { title: "Organize Sanayi Bölgelerinde elektrik tüketimi geçen aya kıyasla %3.5 arttı.", time: "18 Saat Önce" },
+            { title: "KAP: ENKAI yurt dışında 120 milyon $ değerinde altyapı ihalesi kazandı.", time: "19 Saat Önce" },
+            { title: "Merkez Bankası Brüt Rezervleri haftalık bazda artış serisini sürdürdü.", time: "19 Saat Önce" },
+            { title: "Konut Satış İstatistikleri: Yabancıya satışlarda gerileme, iç pazarda canlanma var.", time: "20 Saat Önce" },
+            { title: "KAP: ARCLK yurt dışı bağlı ortaklık birleşme sürecinin tamamlandığını açıkladı.", time: "20 Saat Önce" },
+            { title: "Küresel Navlun Fiyatları: Konteyner endeksinde hafif gevşeme gözleniyor.", time: "21 Saat Önce" },
+            { title: "KAP: TTKOM 5G altyapı testlerinin başarıyla tamamlandığını duyurdu.", time: "21 Saat Önce" },
+            { title: "Avrupa Merkez Bankası (ECB) faiz kararında değişikliğe gitmedi.", time: "22 Saat Önce" },
+            { title: "BIST Temettü Endeksi (XTMTV) yıllık bazda yatırımcısına %45 getiri sağladı.", time: "23 Saat Önce" },
+            { title: "Sermaye Piyasası Kurulu (SPK) piyasa bozucu eylemlere karşı denetimleri artırdı.", time: "24 Saat Önce" }
         ];
 
         function renameList(index) {
@@ -260,6 +343,59 @@
             if(t1) t1.innerText = "⭐ " + listTitles[0] + " ✏️";
             if(t2) t2.innerText = "💼 " + listTitles[1] + " ✏️";
             if(t3) t3.innerText = "🚀 " + listTitles[2] + " ✏️";
+        }
+
+        // CANLI ARAMA / FİLTRELEME FONKSİYONU
+        function filterStocks() {
+            var query = document.getElementById('search-input').value.trim().toUpperCase();
+            var listsWrapper = document.getElementById('lists-wrapper');
+            var searchResultsContainer = document.getElementById('search-results-container');
+            var searchResultsList = document.getElementById('search-results-list');
+
+            if (query === "") {
+                listsWrapper.style.display = "flex";
+                searchResultsContainer.style.display = "none";
+                return;
+            }
+
+            listsWrapper.style.display = "none";
+            searchResultsContainer.style.display = "block";
+            searchResultsList.innerHTML = "";
+
+            var matched = stocks.filter(function(s) {
+                return s.symbol.toUpperCase().indexOf(query) > -1 || s.name.toUpperCase().indexOf(query) > -1;
+            });
+
+            if (matched.length === 0) {
+                searchResultsList.innerHTML = '<div style="text-align:center; padding:20px; color:#787b86; font-size:13px;">Aranan hisse bulunamadı.</div>';
+                return;
+            }
+
+            for (var i = 0; i < matched.length; i++) {
+                var stock = matched[i];
+                var card = createStockCard(stock);
+                searchResultsList.appendChild(card);
+            }
+        }
+
+        function createStockCard(stock) {
+            var numChange = parseFloat(stock.change);
+            var isUp = numChange >= 0;
+            var changeClass = isUp ? 'up' : 'down';
+            var prefix = (isUp && numChange > 0) ? '+' : '';
+
+            var card = document.createElement('div');
+            card.className = 'stock-card ' + changeClass;
+            card.innerHTML = 
+                '<div>' +
+                    '<span class="stock-symbol">' + stock.symbol + '</span>' +
+                    '<span class="stock-name">' + stock.name + '</span>' +
+                '</div>' +
+                '<div class="stock-price-info">' +
+                    '<span class="stock-price">₺' + stock.price + '</span>' +
+                    '<span class="stock-change ' + changeClass + '">' + prefix + '%' + stock.change + '</span>' +
+                '</div>';
+            return card;
         }
 
         function renderAll() {
@@ -282,27 +418,12 @@
                 }
 
                 for (var i = 0; i < filteredStocks.length; i++) {
-                    var stock = filteredStocks[i];
-                    var numChange = parseFloat(stock.change);
-                    var isUp = numChange >= 0;
-                    var changeClass = isUp ? 'up' : 'down';
-                    var prefix = (isUp && numChange > 0) ? '+' : '';
-
-                    var card = document.createElement('div');
-                    card.className = 'stock-card ' + changeClass;
-                    card.innerHTML = 
-                        '<div>' +
-                            '<span class="stock-symbol">' + stock.symbol + '</span>' +
-                            '<span class="stock-name">' + stock.name + '</span>' +
-                        '</div>' +
-                        '<div class="stock-price-info">' +
-                            '<span class="stock-price">₺' + stock.price + '</span>' +
-                            '<span class="stock-change ' + changeClass + '">' + prefix + '%' + stock.change + '</span>' +
-                        '</div>';
+                    var card = createStockCard(filteredStocks[i]);
                     container.appendChild(card);
                 }
             }
 
+            // 50+ Haberi Ekrana Basma
             var newsContainer = document.getElementById('news-container');
             if(newsContainer) {
                 newsContainer.innerHTML = '';
