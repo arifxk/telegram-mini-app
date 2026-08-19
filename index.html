@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIST Pro Terminal</title>
+    <title>BIST Terminal Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     
@@ -11,19 +11,29 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: #121722; color: #f0f3f8; padding: 12px; padding-bottom: 30px; }
 
-        /* HEADER */
         .header { position: sticky; top: 0; background-color: #121722; padding-bottom: 10px; z-index: 100; }
         .user-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
+        .status-box { display: flex; align-items: center; gap: 6px; font-size: 11px; }
         .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
         .status-open { background-color: rgba(8, 153, 129, 0.2); color: #089981; border: 1px solid #089981; }
         .status-closed { background-color: rgba(242, 54, 69, 0.2); color: #f23645; border: 1px solid #f23645; }
 
         #search-input {
-            width: 100%; padding: 12px 14px; border-radius: 8px; border: 1px solid #2a2e39;
+            width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #2a2e39;
             background-color: #1e222d; color: #fff; font-size: 14px; outline: none; text-transform: uppercase;
         }
+        #search-input::placeholder { text-transform: none; }
 
-        /* HİSSE KARTLARI */
+        /* Yana Kaydırmalı Liste Kapsayıcısı (Orijinal Düzen) */
+        .swiper-container {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            scroll-behavior: smooth; -webkit-overflow-scrolling: touch; gap: 15px; padding-bottom: 15px;
+        }
+        .swiper-container::-webkit-scrollbar { display: none; }
+        .swiper-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; }
+
+        .list-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 4px; color: #2962ff; font-size: 14px; cursor: pointer; }
+
         .stock-card {
             display: flex; justify-content: space-between; align-items: center; padding: 12px;
             background-color: #1e222d; margin-bottom: 8px; border-radius: 8px; border-left: 4px solid #2a2e39; cursor: pointer;
@@ -36,7 +46,22 @@
         .up { color: #089981; background-color: rgba(8, 153, 129, 0.15); border-left-color: #089981 !important; }
         .down { color: #f23645; background-color: rgba(242, 54, 69, 0.15); border-left-color: #f23645 !important; }
 
-        /* HİSSE DETAY MODAL / PENCERESİ */
+        /* GENEL HABER BÖLÜMÜ (Orijinal Düzen) */
+        .news-section { margin-top: 15px; border-top: 1px solid #2a2e39; padding-top: 15px; }
+        .news-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .news-header h3 { font-size: 14px; color: #f0f3f8; }
+        .live-dot { font-size: 10px; color: #f23645; font-weight: bold; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+        .news-container { max-height: 350px; overflow-y: auto; padding-right: 4px; }
+        .news-container::-webkit-scrollbar { width: 4px; }
+        .news-container::-webkit-scrollbar-thumb { background: #2a2e39; border-radius: 4px; }
+
+        .news-card { background-color: #1e222d; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #2962ff; }
+        .news-title { font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
+        .news-time { font-size: 10px; color: #787b86; }
+
+        /* HİSSE DETAY PENCERESİ (Yyeni Özellikler) */
         #detail-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #121722; z-index: 1000; overflow-y: auto; padding: 12px;
@@ -44,7 +69,6 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .close-btn { background: #2a2e39; color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 
-        /* TAB / SAYFA GEÇİŞ BAŞLIKLARI */
         .tab-nav { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 12px; border-bottom: 1px solid #2a2e39; padding-bottom: 8px; }
         .tab-btn {
             background: #1e222d; color: #787b86; border: none; padding: 8px 12px; border-radius: 6px;
@@ -52,17 +76,12 @@
         }
         .tab-btn.active { background: #2962ff; color: #fff; }
 
-        /* YANA KAYDIRILABİLİR İÇERİK KAPSAYICISI */
         .tab-slides { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 15px; width: 100%; }
-        .tab-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; min-height: 450px; }
+        .tab-slide { flex: 0 0 100%; scroll-snap-align: start; width: 100%; min-height: 420px; }
 
-        /* KATILIM ENDEKSİ ROZETİ */
-        .katilim-badge {
-            display: inline-block; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 12px;
-        }
+        .katilim-badge { display: inline-block; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; margin-bottom: 12px; }
         .katilim-uygun { background-color: rgba(8, 153, 129, 0.2); color: #089981; border: 1px solid #089981; }
         .katilim-degil { background-color: rgba(242, 54, 69, 0.2); color: #f23645; border: 1px solid #f23645; }
-
         .widget-box { background: #1e222d; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
     </style>
 </head>
@@ -70,19 +89,50 @@
 
     <div class="header">
         <div class="user-info">
-            <span id="user-name">BIST Terminal Pro</span>
+            <span id="user-name">Merhaba!</span>
             <div class="status-box">
                 <span id="market-time">00:00:00</span>
                 <span id="market-status" class="status-badge">KAPALI</span>
             </div>
         </div>
+
         <input type="text" id="search-input" placeholder="Tüm BİST Hisselerini Ara (Örn: THYAO, TUPRS, EUPWR)..." oninput="filterStocks()">
     </div>
 
-    <!-- HİSSE LİSTESİ -->
-    <div id="stock-list-container"></div>
+    <!-- ORİJİNAL DÜZEN: Yana Kaydırmalı Favori / Özel Listeler -->
+    <div class="swiper-container" id="lists-wrapper">
+        <div class="swiper-slide">
+            <div class="list-header"><h3 id="title-list1" onclick="renameList(0)">⭐ Liste 1 ✏️</h3></div>
+            <div class="stock-list" id="container-list1"></div>
+        </div>
+        <div class="swiper-slide">
+            <div class="list-header"><h3 id="title-list2" onclick="renameList(1)">💼 Liste 2 ✏️</h3></div>
+            <div class="stock-list" id="container-list2"></div>
+        </div>
+        <div class="swiper-slide">
+            <div class="list-header"><h3 id="title-list3" onclick="renameList(2)">🚀 Liste 3 ✏️</h3></div>
+            <div class="stock-list" id="container-list3"></div>
+        </div>
+    </div>
 
-    <!-- HİSSE DETAY PENCERESİ (MODAL) -->
+    <!-- Arama Sonuçları İçin Kapsayıcı -->
+    <div id="search-results-container" style="display: none;">
+        <div class="list-header"><h3>🔍 Arama Sonuçları</h3></div>
+        <div id="search-results-list"></div>
+    </div>
+
+    <!-- ORİJİNAL DÜZEN: Genel Anlık Haber Akışı -->
+    <div class="news-section">
+        <div class="news-header">
+            <h3>📰 Anlık Borsa & Ekonomi Haberleri</h3>
+            <span class="live-dot">● CANLI</span>
+        </div>
+        <div class="news-container" id="news-container">
+            <div style="color:#787b86; font-size:12px;">Haberler yükleniyor...</div>
+        </div>
+    </div>
+
+    <!-- HİSSEYE TIKLANDIĞINDA AÇILAN DETAY ANALİZ MODALI -->
     <div id="detail-modal">
         <div class="modal-header">
             <div>
@@ -92,56 +142,48 @@
             <button class="close-btn" onclick="closeDetail()">✕ Kapat</button>
         </div>
 
-        <!-- YANA KAYDIRILABİLİR SAYFA SEKMELERİ -->
+        <!-- DETAY SAYFALARI (YANA KAYDIRILABİLİR) -->
         <div class="tab-nav">
             <button class="tab-btn active" onclick="switchTab(0)">📈 Grafik & Teknik</button>
             <button class="tab-btn" onclick="switchTab(1)">📊 Bilanço & Gelir</button>
-            <button class="tab-btn" onclick="switchTab(2)">📰 KAP & Haberler</button>
+            <button class="tab-btn" onclick="switchTab(2)">📰 Hisseye Özel KAP</button>
             <button class="tab-btn" onclick="switchTab(3)">📋 Derinlik & Özet</button>
         </div>
 
         <div class="tab-slides" id="tab-slides-container" onscroll="handleScroll()">
-            
-            <!-- SAYFA 1: GRAFİK VE TEKNİK ANALİZ (AL-SAT) -->
+            <!-- Sayfa 1: Katılım + Grafik + Al-Sat Sinyalleri -->
             <div class="tab-slide">
                 <div id="katilim-status" class="katilim-badge katilim-uygun">✅ Katılım Endeksi'ne Uygun</div>
-                
-                <div class="widget-box" style="height: 380px;">
-                    <div id="tv-chart-container" style="height: 100%;"></div>
-                </div>
-
+                <div class="widget-box" style="height: 360px;"><div id="tv-chart-container" style="height: 100%;"></div></div>
                 <div class="widget-box">
-                    <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">⚡ Canlı Teknik Analiz & Sinyal</h4>
+                    <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">⚡ Canlı Teknik Analiz & Sinyaller</h4>
                     <div id="tv-technical-container"></div>
                 </div>
             </div>
 
-            <!-- SAYFA 2: BİLANÇO VE FİNANSAL TABLOLAR -->
+            <!-- Sayfa 2: Bilanço / Gelir Tabloları -->
             <div class="tab-slide">
-                <div class="widget-box" style="height: 450px;">
+                <div class="widget-box" style="height: 420px;">
                     <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">💼 Çeyreklik Bilanço & Gelir Tablosu</h4>
                     <div id="tv-financials-container"></div>
                 </div>
             </div>
 
-            <!-- SAYFA 3: HİSSEYE ÖZEL HABERLER -->
+            <!-- Sayfa 3: Hisseye Özel KAP Haberleri -->
             <div class="tab-slide">
                 <div class="widget-box">
-                    <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">📰 Anlık KAP Açıklamaları & Borsa Haberleri</h4>
-                    <div id="stock-news-list">
-                        <div style="color:#787b86; font-size:12px;">Haberler yükleniyor...</div>
-                    </div>
+                    <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">📰 Anlık KAP & Şirket Haberleri</h4>
+                    <div id="stock-news-list"></div>
                 </div>
             </div>
 
-            <!-- SAYFA 4: DERİNLİK VE PİYASA ÖZETİ -->
+            <!-- Sayfa 4: Derinlik / Kademe Özeti -->
             <div class="tab-slide">
                 <div class="widget-box">
                     <h4 style="font-size: 13px; margin-bottom: 8px; color:#2962ff;">📊 Kademe / Piyasa Profili Özeti</h4>
                     <div id="tv-profile-container"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -149,7 +191,13 @@
         var tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) tg.expand();
 
-        // BİST Kapsamlı Katılım Endeksi Veritabanı
+        var listTitles = JSON.parse(localStorage.getItem('bist_list_titles')) || ["Uzun Vadeli", "Temettü Portföyü", "Takip Listem"];
+        var userLists = JSON.parse(localStorage.getItem('bist_user_lists')) || [
+            ["THYAO", "GARAN", "ASELS"],
+            ["EREGL", "TUPRS", "BIMAS"],
+            ["SASA", "KCHOL"]
+        ];
+
         var katilimList = {
             "THYAO": true, "EREGL": true, "ASELS": true, "BIMAS": true, "SISE": true,
             "ASTOR": true, "KONTR": true, "EUPWR": true, "AGROT": true, "REEDR": true,
@@ -169,42 +217,82 @@
             { symbol: "KONTR", name: "Kontrolmatik", price: "52.30", change: "2.10" }
         ];
 
-        function renderStockList(items) {
-            var container = document.getElementById('stock-list-container');
-            container.innerHTML = '';
-            for (var i = 0; i < items.length; i++) {
-                var s = items[i];
-                var isUp = parseFloat(s.change) >= 0;
-                var changeClass = isUp ? 'up' : 'down';
-                var prefix = isUp ? '+' : '';
+        var newsData = [
+            { title: "KAP: THYAO yeni uçak sipariş detaylarını ve filoya katılım takvimini açıkladı.", time: "5 Dk Önce" },
+            { title: "TCMB Faiz Kararı Sonrası BIST 100 Endeksi bankacılık öncülüğünde yükselişte.", time: "12 Dk Önce" },
+            { title: "EREGL: 2026 yılı temettü dağıtım tarihi genel kurulda oy çokluğuyla onaylandı.", time: "22 Dk Önce" },
+            { title: "TUPRS: Rafineri bakım çalışmaları tamamlandı, tam kapasite üretime geçildi.", time: "35 Dk Önce" },
+            { title: "Küresel Piyasalar Fed Açıklamalarına Odaklandı: Ons Altın ve Petrol Hareketli.", time: "48 Dk Önce" },
+            { title: "ASELS: Savunma Sanayii Başkanlığı ile 45 Milyon $ tutarında yeni sözleşme imzalandı.", time: "1 Saat Önce" }
+        ];
 
-                var card = document.createElement('div');
-                card.className = 'stock-card ' + changeClass;
-                card.onclick = (function(symbol, name) {
-                    return function() { openDetail(symbol, name); };
-                })(s.symbol, s.name);
-
-                card.innerHTML = 
-                    '<div><span class="stock-symbol">' + s.symbol + '</span><span class="stock-name">' + s.name + '</span></div>' +
-                    '<div class="stock-price-info"><span class="stock-price">₺' + s.price + '</span><span class="stock-change ' + changeClass + '">' + prefix + '%' + s.change + '</span></div>';
-                container.appendChild(card);
+        function renameList(index) {
+            var newName = prompt("Liste adını giriniz:", listTitles[index]);
+            if (newName && newName.trim() !== "") {
+                listTitles[index] = newName.trim();
+                localStorage.setItem('bist_list_titles', JSON.stringify(listTitles));
+                updateListTitles();
             }
         }
 
+        function updateListTitles() {
+            var t1 = document.getElementById('title-list1');
+            var t2 = document.getElementById('title-list2');
+            var t3 = document.getElementById('title-list3');
+            if(t1) t1.innerText = "⭐ " + listTitles[0] + " ✏️";
+            if(t2) t2.innerText = "💼 " + listTitles[1] + " ✏️";
+            if(t3) t3.innerText = "🚀 " + listTitles[2] + " ✏️";
+        }
+
         function filterStocks() {
-            var q = document.getElementById('search-input').value.trim().toUpperCase();
-            if (q === "") { renderStockList(stocks); return; }
-            var filtered = stocks.filter(function(s) {
-                return s.symbol.indexOf(q) > -1 || s.name.toUpperCase().indexOf(q) > -1;
+            var query = document.getElementById('search-input').value.trim().toUpperCase();
+            var listsWrapper = document.getElementById('lists-wrapper');
+            var searchResultsContainer = document.getElementById('search-results-container');
+            var searchResultsList = document.getElementById('search-results-list');
+
+            if (query === "") {
+                listsWrapper.style.display = "flex";
+                searchResultsContainer.style.display = "none";
+                return;
+            }
+
+            listsWrapper.style.display = "none";
+            searchResultsContainer.style.display = "block";
+            searchResultsList.innerHTML = "";
+
+            var matched = stocks.filter(function(s) {
+                return s.symbol.toUpperCase().indexOf(query) > -1 || s.name.toUpperCase().indexOf(query) > -1;
             });
-            renderStockList(filtered);
+
+            if (matched.length === 0) {
+                searchResultsList.innerHTML = '<div style="text-align:center; padding:20px; color:#787b86; font-size:13px;">Aranan hisse bulunamadı.</div>';
+                return;
+            }
+
+            for (var i = 0; i < matched.length; i++) {
+                searchResultsList.appendChild(createStockCard(matched[i]));
+            }
+        }
+
+        function createStockCard(stock) {
+            var numChange = parseFloat(stock.change);
+            var isUp = numChange >= 0;
+            var changeClass = isUp ? 'up' : 'down';
+            var prefix = (isUp && numChange > 0) ? '+' : '';
+
+            var card = document.createElement('div');
+            card.className = 'stock-card ' + changeClass;
+            card.onclick = function() { openDetail(stock.symbol, stock.name); };
+            card.innerHTML = 
+                '<div><span class="stock-symbol">' + stock.symbol + '</span><span class="stock-name">' + stock.name + '</span></div>' +
+                '<div class="stock-price-info"><span class="stock-price">₺' + stock.price + '</span><span class="stock-change ' + changeClass + '">' + prefix + '%' + stock.change + '</span></div>';
+            return card;
         }
 
         function openDetail(symbol, name) {
             document.getElementById('modal-symbol').innerText = symbol;
             document.getElementById('modal-name').innerText = name;
             
-            // Katılım Endeksi Kontrolü
             var isKatilim = katilimList[symbol] !== undefined ? katilimList[symbol] : true;
             var kBadge = document.getElementById('katilim-status');
             if (isKatilim) {
@@ -212,7 +300,7 @@
                 kBadge.innerText = "✅ Katılım Endeksi'ne Uygun";
             } else {
                 kBadge.className = "katilim-badge katilim-degil";
-                kBadge.innerText = "❌ Katılım Endeksi'ne Uygun Değil (Faiz/Finans Riski)";
+                kBadge.innerText = "❌ Katılım Endeksi'ne Uygun Değil";
             }
 
             document.getElementById('detail-modal').style.display = 'block';
@@ -220,79 +308,53 @@
             loadStockNews(symbol);
         }
 
-        function closeDetail() {
-            document.getElementById('detail-modal').style.display = 'none';
-        }
+        function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
 
         function loadTradingViewWidgets(symbol) {
             var tvSymbol = "BIST:" + symbol;
-
-            // 1. Canlı Grafik Widget
+            
             document.getElementById('tv-chart-container').innerHTML = '';
             new TradingView.widget({
                 "autosize": true, "symbol": tvSymbol, "interval": "D", "timezone": "Europe/Istanbul",
-                "theme": "dark", "style": "1", "locale": "tr", "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false, "hide_side_toolbar": false, "container_id": "tv-chart-container"
+                "theme": "dark", "style": "1", "locale": "tr", "container_id": "tv-chart-container"
             });
 
-            // 2. Teknik Analiz (Al-Sat) Widget
             var techContainer = document.getElementById('tv-technical-container');
             techContainer.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
-            var script1 = document.createElement('script');
-            script1.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-            script1.async = true;
-            script1.innerHTML = JSON.stringify({
-                "interval": "1D", "width": "100%", "isTransparent": true, "height": "280",
-                "symbol": tvSymbol, "showIntervalTabs": true, "locale": "tr", "colorTheme": "dark"
-            });
-            techContainer.appendChild(script1);
+            var s1 = document.createElement('script');
+            s1.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+            s1.async = true;
+            s1.innerHTML = JSON.stringify({ "interval": "1D", "width": "100%", "isTransparent": true, "height": "280", "symbol": tvSymbol, "locale": "tr", "colorTheme": "dark" });
+            techContainer.appendChild(s1);
 
-            // 3. Bilanço & Finansallar Widget
             var finContainer = document.getElementById('tv-financials-container');
             finContainer.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
-            var script2 = document.createElement('script');
-            script2.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
-            script2.async = true;
-            script2.innerHTML = JSON.stringify({
-                "isTransparent": true, "largeChartUrl": "", "width": "100%", "height": "400",
-                "symbol": tvSymbol, "favoritePointers": ["Income", "Balance_Sheet", "Cash_Flow"],
-                "locale": "tr", "colorTheme": "dark"
-            });
-            finContainer.appendChild(script2);
+            var s2 = document.createElement('script');
+            s2.src = 'https://s3.tradingview.com/external-embedding/embed-widget-financials.js';
+            s2.async = true;
+            s2.innerHTML = JSON.stringify({ "isTransparent": true, "width": "100%", "height": "380", "symbol": tvSymbol, "locale": "tr", "colorTheme": "dark" });
+            finContainer.appendChild(s2);
 
-            // 4. Şirket Profili / Kademe Özeti Widget
             var profContainer = document.getElementById('tv-profile-container');
             profContainer.innerHTML = '<div class="tradingview-widget-container__widget"></div>';
-            var script3 = document.createElement('script');
-            script3.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js';
-            script3.async = true;
-            script3.innerHTML = JSON.stringify({
-                "width": "100%", "height": "380", "colorTheme": "dark", "isTransparent": true,
-                "symbol": tvSymbol, "locale": "tr"
-            });
-            profContainer.appendChild(script3);
+            var s3 = document.createElement('script');
+            s3.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js';
+            s3.async = true;
+            s3.innerHTML = JSON.stringify({ "width": "100%", "height": "360", "colorTheme": "dark", "isTransparent": true, "symbol": tvSymbol, "locale": "tr" });
+            profContainer.appendChild(s3);
         }
 
         function loadStockNews(symbol) {
-            var container = document.getElementById('stock-news-list');
-            container.innerHTML = 
-                '<div style="background:#121722; padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #2962ff;">' +
-                    '<strong style="font-size:13px; color:#fff;">KAP: ' + symbol + ' Özel Durum Açıklaması</strong><br>' +
-                    '<span style="font-size:10px; color:#787b86;">Son Güncelleme • Doğrulanmış KAP Bildirimi</span>' +
-                '</div>' +
-                '<div style="background:#121722; padding:10px; border-radius:6px; margin-bottom:8px; border-left:3px solid #089981;">' +
-                    '<strong style="font-size:13px; color:#fff;">' + symbol + ' Finansal Raporlar ve Çeyreklik Kar Açıklandı</strong><br>' +
-                    '<span style="font-size:10px; color:#787b86;">1 Saat Önce • Borsa Gündem</span>' +
-                '</div>';
+            document.getElementById('stock-news-list').innerHTML = 
+                '<div class="news-card"><span class="news-title">KAP: ' + symbol + ' Özel Durum Açıklaması ve Bildirimi</span><span class="news-time">Doğrulanmış KAP Bildirimi</span></div>' +
+                '<div class="news-card"><span class="news-title">' + symbol + ' Finansal Raporları Yayınlandı</span><span class="news-time">1 Saat Önce</span></div>';
         }
 
         function switchTab(index) {
             var slides = document.getElementById('tab-slides-container');
             var btns = document.querySelectorAll('.tab-btn');
             slides.scrollLeft = index * slides.clientWidth;
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].classList.remove('active');
-            }
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
             btns[index].classList.add('active');
         }
 
@@ -300,13 +362,68 @@
             var slides = document.getElementById('tab-slides-container');
             var index = Math.round(slides.scrollLeft / slides.clientWidth);
             var btns = document.querySelectorAll('.tab-btn');
-            for (var i = 0; i < btns.length; i++) {
-                btns[i].classList.remove('active');
-            }
+            for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
             if (btns[index]) btns[index].classList.add('active');
         }
 
-        renderStockList(stocks);
+        function renderAll() {
+            updateListTitles();
+            for (var listIndex = 0; listIndex < 3; listIndex++) {
+                var container = document.getElementById('container-list' + (listIndex + 1));
+                if(!container) continue;
+                container.innerHTML = '';
+                var currentSymbols = userLists[listIndex];
+                var filtered = stocks.filter(function(s) { return currentSymbols.indexOf(s.symbol) > -1; });
+                for (var i = 0; i < filtered.length; i++) {
+                    container.appendChild(createStockCard(filtered[i]));
+                }
+            }
+
+            var newsContainer = document.getElementById('news-container');
+            if(newsContainer) {
+                newsContainer.innerHTML = '';
+                for (var n = 0; n < newsData.length; n++) {
+                    var newsCard = document.createElement('div');
+                    newsCard.className = 'news-card';
+                    newsCard.innerHTML = '<span class="news-title">' + newsData[n].title + '</span><span class="news-time">' + newsData[n].time + '</span>';
+                    newsContainer.appendChild(newsCard);
+                }
+            }
+        }
+
+        function updateMarketStatus() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            var timeElem = document.getElementById('market-time');
+            if(timeElem) timeElem.innerText = hours + ':' + minutes + ':' + seconds;
+
+            var day = now.getDay();
+            var currentMinute = now.getHours() * 60 + now.getMinutes();
+            var isOpen = (day >= 1 && day <= 5) && (currentMinute >= 600 && currentMinute < 1080);
+            var statusElem = document.getElementById('market-status');
+            if (statusElem) {
+                statusElem.innerText = isOpen ? "AÇIK" : "KAPALI";
+                statusElem.className = "status-badge " + (isOpen ? "status-open" : "status-closed");
+            }
+        }
+
+        function initApp() {
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                var nameElem = document.getElementById('user-name');
+                if (nameElem) nameElem.innerText = 'Merhaba, ' + (tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name) + '!';
+            }
+            setInterval(updateMarketStatus, 1000);
+            updateMarketStatus();
+            renderAll();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
     </script>
 </body>
 </html>
