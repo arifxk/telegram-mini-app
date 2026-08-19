@@ -6,12 +6,164 @@
     <title>BIST Terminal</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Yana Kaydırma (Swipe) Kütüphanesi -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    
-    <!-- CSS Dosyası (Versiyon kırma parametreli) -->
-    <link rel="stylesheet" href="stil.css?v=2">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #121722;
+            color: #f0f3f8;
+            padding: 12px;
+            padding-bottom: 30px;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: #121722;
+            padding-bottom: 10px;
+            z-index: 100;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .status-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+        }
+
+        .status-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .status-open { background-color: rgba(8, 153, 129, 0.2); color: #089981; border: 1px solid #089981; }
+        .status-closed { background-color: rgba(242, 54, 69, 0.2); color: #f23645; border: 1px solid #f23645; }
+
+        #search-input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #2a2e39;
+            background-color: #1e222d;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        /* Yana Kaydırmalı Kapsayıcı (Pure CSS Scroll Snap) */
+        .swiper-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            gap: 15px;
+            padding-bottom: 15px;
+        }
+
+        .swiper-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .swiper-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            width: 100%;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 4px;
+            color: #2962ff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .stock-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #1e222d;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #2a2e39;
+        }
+
+        .stock-symbol { font-weight: bold; font-size: 15px; display: block; }
+        .stock-name { font-size: 11px; color: #787b86; }
+        .stock-price-info { text-align: right; }
+        .stock-price { font-weight: bold; font-size: 14px; display: block; }
+
+        .stock-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        .up { color: #089981; background-color: rgba(8, 153, 129, 0.15); border-left-color: #089981 !important; }
+        .down { color: #f23645; background-color: rgba(242, 54, 69, 0.15); border-left-color: #f23645 !important; }
+
+        /* HABER BÖLÜMÜ */
+        .news-section {
+            margin-top: 15px;
+            border-top: 1px solid #2a2e39;
+            padding-top: 15px;
+        }
+
+        .news-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .news-header h3 { font-size: 14px; color: #f0f3f8; }
+
+        .live-dot {
+            font-size: 10px;
+            color: #f23645;
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .news-card {
+            background-color: #1e222d;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid #2962ff;
+        }
+
+        .news-title { font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
+        .news-time { font-size: 10px; color: #787b86; }
+    </style>
 </head>
 <body>
     <div class="header">
@@ -26,33 +178,29 @@
         <input type="text" id="search-input" placeholder="Hisse Ara (Örn: THYAO, SASA)..." oninput="filterStocks()">
     </div>
 
-    <!-- Swiper Yana Kaydırmalı Liste Konteyneri -->
-    <div class="swiper mySwiper">
-        <div class="swiper-wrapper">
-            <!-- Liste 1 -->
-            <div class="swiper-slide">
-                <div class="list-header">
-                    <h3 id="title-list1" onclick="renameList(0)">⭐ Liste 1 ✏️</h3>
-                </div>
-                <div class="stock-list" id="container-list1"></div>
+    <!-- Kaydırmalı Liste Kapsayıcısı -->
+    <div class="swiper-container">
+        <!-- Liste 1 -->
+        <div class="swiper-slide">
+            <div class="list-header">
+                <h3 id="title-list1" onclick="renameList(0)">⭐ Liste 1 ✏️</h3>
             </div>
-            <!-- Liste 2 -->
-            <div class="swiper-slide">
-                <div class="list-header">
-                    <h3 id="title-list2" onclick="renameList(1)">💼 Liste 2 ✏️</h3>
-                </div>
-                <div class="stock-list" id="container-list2"></div>
-            </div>
-            <!-- Liste 3 -->
-            <div class="swiper-slide">
-                <div class="list-header">
-                    <h3 id="title-list3" onclick="renameList(2)">🚀 Liste 3 ✏️</h3>
-                </div>
-                <div class="stock-list" id="container-list3"></div>
-            </div>
+            <div class="stock-list" id="container-list1"></div>
         </div>
-        <!-- Sayfa Noktaları -->
-        <div class="swiper-pagination"></div>
+        <!-- Liste 2 -->
+        <div class="swiper-slide">
+            <div class="list-header">
+                <h3 id="title-list2" onclick="renameList(1)">💼 Liste 2 ✏️</h3>
+            </div>
+            <div class="stock-list" id="container-list2"></div>
+        </div>
+        <!-- Liste 3 -->
+        <div class="swiper-slide">
+            <div class="list-header">
+                <h3 id="title-list3" onclick="renameList(2)">🚀 Liste 3 ✏️</h3>
+            </div>
+            <div class="stock-list" id="container-list3"></div>
+        </div>
     </div>
 
     <!-- ALT KISIM: ANLIK HABER AKIŞI -->
@@ -62,11 +210,154 @@
             <span class="live-dot">● CANLI</span>
         </div>
         <div class="news-container" id="news-container">
-            <div class="loading">Haber akışı yükleniyor...</div>
+            <div style="color:#787b86; font-size:12px;">Haberler yükleniyor...</div>
         </div>
     </div>
 
-    <!-- JS Dosyası (Versiyon kırma parametreli) -->
-    <script src="uygulama.js?v=2"></script>
+    <script>
+        var tg = window.Telegram ? window.Telegram.WebApp : null;
+        if (tg) tg.expand();
+
+        var listTitles = JSON.parse(localStorage.getItem('bist_list_titles')) || ["Uzun Vadeli", "Temettü Portföyü", "Takip Listem"];
+        var userLists = JSON.parse(localStorage.getItem('bist_user_lists')) || [
+            ["THYAO", "GARAN", "ASELS"],
+            ["EREGL", "TUPRS", "BIMAS"],
+            ["SASA", "KCHOL"]
+        ];
+
+        var stocks = [
+            { symbol: "THYAO", name: "Türk Hava Yolları", price: "298.50", change: "2.45" },
+            { symbol: "GARAN", name: "Garanti Bankası", price: "112.10", change: "-0.80" },
+            { symbol: "EREGL", name: "Ereğli Demir Çelik", price: "48.30", change: "1.15" },
+            { symbol: "ASELS", name: "Aselsan", price: "64.70", change: "3.20" },
+            { symbol: "KCHOL", name: "Koç Holding", price: "210.40", change: "-1.50" },
+            { symbol: "SASA", name: "Sasa Polyester", price: "42.10", change: "0.00" },
+            { symbol: "TUPRS", name: "Tüpraş", price: "175.00", change: "1.30" },
+            { symbol: "BIMAS", name: "BİM Mağazalar", price: "510.00", change: "1.60" }
+        ];
+
+        var newsData = [
+            { title: "KAP: THYAO yeni uçak sipariş detaylarını açıkladı.", time: "10 Dk Önce" },
+            { title: "TCMB Faiz Kararı Sonrası BIST 100 Endeksi Yükselişte.", time: "25 Dk Önce" },
+            { title: "EREGL: Temettü dağıtım tarihi genel kurulda onaylandı.", time: "1 Saat Önce" },
+            { title: "Küresel Piyasalar Fed Açıklamalarına Odaklandı.", time: "2 Saat Önce" }
+        ];
+
+        function renameList(index) {
+            var newName = prompt("Liste adını giriniz:", listTitles[index]);
+            if (newName && newName.trim() !== "") {
+                listTitles[index] = newName.trim();
+                localStorage.setItem('bist_list_titles', JSON.stringify(listTitles));
+                updateListTitles();
+            }
+        }
+
+        function updateListTitles() {
+            var t1 = document.getElementById('title-list1');
+            var t2 = document.getElementById('title-list2');
+            var t3 = document.getElementById('title-list3');
+            
+            if(t1) t1.innerText = "⭐ " + listTitles[0] + " ✏️";
+            if(t2) t2.innerText = "💼 " + listTitles[1] + " ✏️";
+            if(t3) t3.innerText = "🚀 " + listTitles[2] + " ✏️";
+        }
+
+        function renderAll() {
+            updateListTitles();
+
+            for (var listIndex = 0; listIndex < 3; listIndex++) {
+                var container = document.getElementById('container-list' + (listIndex + 1));
+                if(!container) continue;
+                
+                container.innerHTML = '';
+                var currentSymbols = userLists[listIndex];
+
+                var filteredStocks = stocks.filter(function(s) {
+                    return currentSymbols.indexOf(s.symbol) > -1;
+                });
+
+                if (filteredStocks.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:15px; color:#787b86; font-size:12px;">Bu listede henüz hisse yok.</div>';
+                    continue;
+                }
+
+                for (var i = 0; i < filteredStocks.length; i++) {
+                    var stock = filteredStocks[i];
+                    var numChange = parseFloat(stock.change);
+                    var isUp = numChange >= 0;
+                    var changeClass = isUp ? 'up' : 'down';
+                    var prefix = (isUp && numChange > 0) ? '+' : '';
+
+                    var card = document.createElement('div');
+                    card.className = 'stock-card ' + changeClass;
+                    card.innerHTML = 
+                        '<div>' +
+                            '<span class="stock-symbol">' + stock.symbol + '</span>' +
+                            '<span class="stock-name">' + stock.name + '</span>' +
+                        '</div>' +
+                        '<div class="stock-price-info">' +
+                            '<span class="stock-price">₺' + stock.price + '</span>' +
+                            '<span class="stock-change ' + changeClass + '">' + prefix + '%' + stock.change + '</span>' +
+                        '</div>';
+                    container.appendChild(card);
+                }
+            }
+
+            var newsContainer = document.getElementById('news-container');
+            if(newsContainer) {
+                newsContainer.innerHTML = '';
+                for (var n = 0; n < newsData.length; n++) {
+                    var news = newsData[n];
+                    var newsCard = document.createElement('div');
+                    newsCard.className = 'news-card';
+                    newsCard.innerHTML = 
+                        '<span class="news-title">' + news.title + '</span>' +
+                        '<span class="news-time">' + news.time + '</span>';
+                    newsContainer.appendChild(newsCard);
+                }
+            }
+        }
+
+        function updateMarketStatus() {
+            var now = new Date();
+            var hours = String(now.getHours()).padStart(2, '0');
+            var minutes = String(now.getMinutes()).padStart(2, '0');
+            var seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            var timeElem = document.getElementById('market-time');
+            if(timeElem) timeElem.innerText = hours + ':' + minutes + ':' + seconds;
+
+            var day = now.getDay();
+            var currentMinute = now.getHours() * 60 + now.getMinutes();
+            var isOpen = (day >= 1 && day <= 5) && (currentMinute >= 600 && currentMinute < 1080);
+
+            var statusElem = document.getElementById('market-status');
+            if (statusElem) {
+                if (isOpen) {
+                    statusElem.innerText = "AÇIK";
+                    statusElem.className = "status-badge status-open";
+                } else {
+                    statusElem.innerText = "KAPALI";
+                    statusElem.className = "status-badge status-closed";
+                }
+            }
+        }
+
+        function initApp() {
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                var nameElem = document.getElementById('user-name');
+                if (nameElem) nameElem.innerText = 'Merhaba, ' + (tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name) + '!';
+            }
+            setInterval(updateMarketStatus, 1000);
+            updateMarketStatus();
+            renderAll();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
 </body>
 </html>
