@@ -21,7 +21,7 @@ var stocks = [
     { symbol: "BIMAS", name: "BİM Mağazalar", price: "510.00", change: "1.60" }
 ];
 
-// Sahte / Taslak Haber Akışı (Backend bağlandığında buraya canlı KAP/Ekonomi haberleri akacak)
+// Taslak Haber Akışı
 var newsData = [
     { title: "KAP: THYAO yeni uçak sipariş detaylarını açıkladı.", time: "10 Dk Önce" },
     { title: "TCMB Faiz Kararı Sonrası BIST 100 Endeksi Yükselişte.", time: "25 Dk Önce" },
@@ -30,9 +30,7 @@ var newsData = [
 ];
 
 // Swiper Başlatma
-var swiper = new Swiper('.mySwiper', {
-    pagination: { el: '.swiper-pagination', clickable: true },
-});
+var swiper;
 
 // Liste Başlığı Değiştirme
 function renameList(index) {
@@ -45,18 +43,23 @@ function renameList(index) {
 }
 
 function updateListTitles() {
-    document.getElementById('title-list1').innerText = "⭐ " + listTitles[0] + " ✏️";
-    document.getElementById('title-list2').innerText = "💼 " + listTitles[1] + " ✏️";
-    document.getElementById('title-list3').innerText = "🚀 " + listTitles[2] + " ✏️";
+    var t1 = document.getElementById('title-list1');
+    var t2 = document.getElementById('title-list2');
+    var t3 = document.getElementById('title-list3');
+    
+    if(t1) t1.innerText = "⭐ " + listTitles[0] + " ✏️";
+    if(t2) t2.innerText = "💼 " + listTitles[1] + " ✏️";
+    if(t3) t3.innerText = "🚀 " + listTitles[2] + " ✏️";
 }
 
-// Favorileri ve Haberleri Ekrana Basma
+// Ekrana Basma
 function renderAll() {
     updateListTitles();
 
-    // 3 Listeyi de doldur
     for (var listIndex = 0; listIndex < 3; listIndex++) {
         var container = document.getElementById('container-list' + (listIndex + 1));
+        if(!container) continue;
+        
         container.innerHTML = '';
         var currentSymbols = userLists[listIndex];
 
@@ -74,7 +77,7 @@ function renderAll() {
             var numChange = parseFloat(stock.change);
             var isUp = numChange >= 0;
             var changeClass = isUp ? 'up' : 'down';
-            var changeSign = (isUp && numChange > 0) ? '+' : '';
+            var prefix = (isUp && numChange > 0) ? '+' : '';
 
             var card = document.createElement('div');
             card.className = 'stock-card ' + changeClass;
@@ -85,23 +88,24 @@ function renderAll() {
                 '</div>' +
                 '<div class="stock-price-info">' +
                     '<span class="stock-price">₺' + stock.price + '</span>' +
-                    '<span class="stock-change ' + changeClass + '">' + changeSign + '%' + stock.change + '</span>' +
+                    '<span class="stock-change ' + changeClass + '">' + prefix + '%' + stock.change + '</span>' +
                 '</div>';
             container.appendChild(card);
         }
     }
 
-    // Haberleri Bas
     var newsContainer = document.getElementById('news-container');
-    newsContainer.innerHTML = '';
-    for (var n = 0; n < newsData.length; n++) {
-        var news = newsData[n];
-        var newsCard = document.createElement('div');
-        newsCard.className = 'news-card';
-        newsCard.innerHTML = 
-            '<span class="news-title">' + news.title + '</span>' +
-            '<span class="news-time">' + news.time + '</span>';
-        newsContainer.appendChild(newsCard);
+    if(newsContainer) {
+        newsContainer.innerHTML = '';
+        for (var n = 0; n < newsData.length; n++) {
+            var news = newsData[n];
+            var newsCard = document.createElement('div');
+            newsCard.className = 'news-card';
+            newsCard.innerHTML = 
+                '<span class="news-title">' + news.title + '</span>' +
+                '<span class="news-time">' + news.time + '</span>';
+            newsContainer.appendChild(newsCard);
+        }
     }
 }
 
@@ -111,19 +115,23 @@ function updateMarketStatus() {
     var hours = String(now.getHours()).padStart(2, '0');
     var minutes = String(now.getMinutes()).padStart(2, '0');
     var seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('market-time').innerText = hours + ':' + minutes + ':' + seconds;
+    
+    var timeElem = document.getElementById('market-time');
+    if(timeElem) timeElem.innerText = hours + ':' + minutes + ':' + seconds;
 
     var day = now.getDay();
     var currentMinute = now.getHours() * 60 + now.getMinutes();
     var isOpen = (day >= 1 && day <= 5) && (currentMinute >= 600 && currentMinute < 1080);
 
     var statusElem = document.getElementById('market-status');
-    if (isOpen) {
-        statusElem.innerText = "AÇIK";
-        statusElem.className = "status-badge status-open";
-    } else {
-        statusElem.innerText = "KAPALI";
-        statusElem.className = "status-badge status-closed";
+    if (statusElem) {
+        if (isOpen) {
+            statusElem.innerText = "AÇIK";
+            statusElem.className = "status-badge status-open";
+        } else {
+            statusElem.innerText = "KAPALI";
+            statusElem.className = "status-badge status-closed";
+        }
     }
 }
 
@@ -132,6 +140,14 @@ function initApp() {
         var nameElem = document.getElementById('user-name');
         if (nameElem) nameElem.innerText = 'Merhaba, ' + (tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name) + '!';
     }
+    
+    // Swiper Başlat
+    if (typeof Swiper !== 'undefined') {
+        swiper = new Swiper('.mySwiper', {
+            pagination: { el: '.swiper-pagination', clickable: true },
+        });
+    }
+
     setInterval(updateMarketStatus, 1000);
     updateMarketStatus();
     renderAll();
