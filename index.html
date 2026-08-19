@@ -3,24 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIST Anlık Takip</title>
+    <title>BIST Terminal</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <!-- Yana Kaydırma (Swipe) Kütüphanesi -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="stil.css">
 </head>
 <body>
     <div class="header">
         <div class="user-info">
-            <span id="user-name">BIST Takip</span>
-            <span class="live-badge">LIVE</span>
+            <span id="user-name">Merhaba!</span>
+            <div class="status-box">
+                <span id="market-time">00:00:00</span>
+                <span id="market-status" class="status-badge">KAPALI</span>
+            </div>
         </div>
-        <input type="text" id="search-input" placeholder="Hisse Ara (Örn: THYAO)..." onkeyup="filterStocks()">
+
+        <input type="text" id="search-input" placeholder="Hisse Ara (Örn: THYAO, SASA)..." oninput="filterStocks()">
     </div>
 
-    <div class="stock-list" id="stock-container">
-        <!-- Hisse kartları JavaScript ile buraya canlı yüklenecek -->
-        <div class="loading">Veriler yükleniyor...</div>
+    <!-- Swiper Yana Kaydırmalı Liste Konteyneri -->
+    <div class="swiper mySwiper">
+        <div class="swiper-wrapper">
+            <!-- Liste 1 -->
+            <div class="swiper-slide">
+                <div class="list-header">
+                    <h3 id="title-list1" onclick="renameList(0)">⭐ Liste 1 ✏️</h3>
+                </div>
+                <div class="stock-list" id="container-list1"></div>
+            </div>
+            <!-- Liste 2 -->
+            <div class="swiper-slide">
+                <div class="list-header">
+                    <h3 id="title-list2" onclick="renameList(1)">💼 Liste 2 ✏️</h3>
+                </div>
+                <div class="stock-list" id="container-list2"></div>
+            </div>
+            <!-- Liste 3 -->
+            <div class="swiper-slide">
+                <div class="list-header">
+                    <h3 id="title-list3" onclick="renameList(2)">🚀 Liste 3 ✏️</h3>
+                </div>
+                <div class="stock-list" id="container-list3"></div>
+            </div>
+        </div>
+        <!-- Sayfa Noktaları -->
+        <div class="swiper-pagination"></div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- ALT KISIM: ANLIK HABER AKIŞI -->
+    <div class="news-section">
+        <div class="news-header">
+            <h3>📰 Anlık Borsa & Ekonomi Haberleri</h3>
+            <span class="live-dot">● CANLI</span>
+        </div>
+        <div class="news-container" id="news-container">
+            <!-- Haberler JavaScript ile dolacak -->
+            <div class="loading">Haber akışı yükleniyor...</div>
+        </div>
+    </div>
+
+    <script src="uygulama.js"></script>
 </body>
 </html>
