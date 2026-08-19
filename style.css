@@ -2,13 +2,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
     background-color: #121722;
     color: #f0f3f8;
     padding: 12px;
+    padding-bottom: 30px;
 }
 
 .header {
@@ -27,14 +28,22 @@ body {
     font-weight: bold;
 }
 
-.live-badge {
-    background-color: #00c853;
-    color: #000;
-    font-size: 10px;
+.status-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+}
+
+.status-badge {
     padding: 2px 6px;
     border-radius: 4px;
-    font-weight: 800;
+    font-size: 10px;
+    font-weight: bold;
 }
+
+.status-open { background-color: rgba(8, 153, 129, 0.2); color: #089981; border: 1px solid #089981; }
+.status-closed { background-color: rgba(242, 54, 69, 0.2); color: #f23645; border: 1px solid #f23645; }
 
 #search-input {
     width: 100%;
@@ -47,40 +56,40 @@ body {
     outline: none;
 }
 
+/* Yana Kaydırma (Swiper) Stil */
+.swiper {
+    width: 100%;
+    padding-bottom: 25px !important;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    color: #2962ff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
 .stock-card {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px;
+    padding: 12px;
     background-color: #1e222d;
     margin-bottom: 8px;
     border-radius: 8px;
     border-left: 4px solid #2a2e39;
 }
 
-.stock-symbol {
-    font-weight: bold;
-    font-size: 16px;
-    display: block;
-}
-
-.stock-name {
-    font-size: 11px;
-    color: #787b86;
-}
-
-.stock-price-info {
-    text-align: right;
-}
-
-.stock-price {
-    font-weight: bold;
-    font-size: 15px;
-    display: block;
-}
+.stock-symbol { font-weight: bold; font-size: 15px; display: block; }
+.stock-name { font-size: 11px; color: #787b86; }
+.stock-price-info { text-align: right; }
+.stock-price { font-weight: bold; font-size: 14px; display: block; }
 
 .stock-change {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     padding: 2px 6px;
     border-radius: 4px;
@@ -88,20 +97,49 @@ body {
     margin-top: 2px;
 }
 
-.up {
-    color: #089981;
-    background-color: rgba(8, 153, 129, 0.15);
-    border-left-color: #089981 !important;
+.up { color: #089981; background-color: rgba(8, 153, 129, 0.15); border-left-color: #089981 !important; }
+.down { color: #f23645; background-color: rgba(242, 54, 69, 0.15); border-left-color: #f23645 !important; }
+
+/* Swiper Pagination Noktaları */
+.swiper-pagination-bullet { background: #787b86 !important; }
+.swiper-pagination-bullet-active { background: #2962ff !important; }
+
+/* HABER BÖLÜMÜ */
+.news-section {
+    margin-top: 15px;
+    border-top: 1px solid #2a2e39;
+    padding-top: 15px;
 }
 
-.down {
+.news-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.news-header h3 { font-size: 14px; color: #f0f3f8; }
+
+.live-dot {
+    font-size: 10px;
     color: #f23645;
-    background-color: rgba(242, 54, 69, 0.15);
-    border-left-color: #f23645 !important;
+    font-weight: bold;
+    animation: blink 1.5s infinite;
 }
 
-.loading {
-    text-align: center;
-    padding: 20px;
-    color: #787b86;
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
 }
+
+.news-card {
+    background-color: #1e222d;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 3px solid #2962ff;
+}
+
+.news-title { font-size: 13px; font-weight: bold; color: #fff; margin-bottom: 4px; display: block; }
+.news-time { font-size: 10px; color: #787b86; }
