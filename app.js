@@ -1,7 +1,7 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// Örnek BIST Veri Yapısı (Python Backend bağlandığında burası anlık güncellenecek)
+// BIST Taslak Verileri (Python Backend bağlandığında buraya canlı veri akacak)
 let stocks = [
     { symbol: "THYAO", name: "Türk Hava Yolları", price: "298.50", change: "+2.45" },
     { symbol: "GARAN", name: "Garanti Bankası", price: "112.10", change: "-0.80" },
@@ -13,6 +13,8 @@ let stocks = [
 
 function renderStocks(data) {
     const container = document.getElementById('stock-container');
+    if (!container) return;
+    
     container.innerHTML = '';
 
     data.forEach(stock => {
@@ -42,10 +44,13 @@ function filterStocks() {
     renderStocks(filtered);
 }
 
-// Uygulama açıldığında ilk veriyi bas
+// Ekrana Verileri Bas
 document.addEventListener("DOMContentLoaded", () => {
     if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-        document.getElementById('user-name').innerText = `Selam, ${tg.initDataUnsafe.user.first_name}`;
+        const nameElement = document.getElementById('user-name');
+        if (nameElement) {
+            nameElement.innerText = `Merhaba, ${tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name}!`;
+        }
     }
     renderStocks(stocks);
 });
