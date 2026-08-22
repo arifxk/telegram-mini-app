@@ -114,6 +114,7 @@
         .detail-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
         
         .chart-box { background: #ffffff; border-radius: 16px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+        .chart-container-wrapper { position: relative; width: 100%; height: 200px; }
         .analysis-text { font-size: 11.5px; color: #65676b; line-height: 1.4; margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 10px; }
 
         .dropdown-box { background: #ffffff; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
@@ -164,7 +165,7 @@
             <div class="settings-btn">⚙️</div>
         </div>
 
-        <!-- OTOMATİK KENDİLİĞİNDEN KAYAN OTOMATİK TICKER BANT -->
+        <!-- OTOMATİK KENDİLİĞİNDEN KAYAN TICKER BANT -->
         <div class="ticker-wrap">
             <div class="ticker-move" id="ticker-content"></div>
         </div>
@@ -229,7 +230,9 @@
         <div class="detail-body">
             <!-- CANLI MİNİ GRAFİK VE OSİLATÖR NOTU -->
             <div class="chart-box">
-                <canvas id="stockChart" style="width:100%; height:180px;"></canvas>
+                <div class="chart-container-wrapper">
+                    <canvas id="stockChart"></canvas>
+                </div>
                 <div class="analysis-text">
                     Osilatörler'in genelde aşırı alım bölgesinde olması hissenin fazla yükseldiği şeklinde değerlendirilebilir. Hisse kısa-orta vade hareketli ortalamalarının üzerinde seyrediyor.
                 </div>
@@ -589,10 +592,14 @@
             document.getElementById('m-logo').innerText = stock.letter;
             document.getElementById('m-logo').style.backgroundColor = stock.color;
 
+            // Modalı görünür yap
             document.getElementById('detail-modal').style.display = 'block';
 
-            renderLineChart();
-            renderPieChart();
+            // Canvas ve modal yerleşimi oturduktan 60ms sonra grafik çizen güvenli zamanlayıcı
+            setTimeout(function() {
+                renderLineChart();
+                renderPieChart();
+            }, 60);
         }
 
         function closeModal() {
@@ -600,37 +607,66 @@
         }
 
         function renderLineChart() {
-            var ctx = document.getElementById('stockChart').getContext('2d');
-            if(myLineChart) myLineChart.destroy();
+            var canvas = document.getElementById('stockChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            
+            if (myLineChart) {
+                myLineChart.destroy();
+            }
+
+            // Çizgi Altı Yeşil Degrade
+            var gradient = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient.addColorStop(0, 'rgba(0, 166, 90, 0.35)');
+            gradient.addColorStop(1, 'rgba(0, 166, 90, 0.0)');
 
             myLineChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: ['09:30', '11:00', '13:00', '15:00', '17:00', '18:10'],
                     datasets: [{
-                        data: [400, 401.5, 400.2, 404.0, 405.8, 403.25],
-                        borderColor: '#26a69a',
+                        data: [400.0, 401.5, 399.8, 404.2, 405.8, 403.25],
+                        borderColor: '#00a65a',
                         borderWidth: 2,
-                        fill: false,
-                        tension: 0.3,
-                        pointRadius: 0
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.35,
+                        pointRadius: 0,
+                        pointHoverRadius: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    animation: { duration: 300 },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: true }
+                    },
                     scales: {
-                        x: { grid: { display: false } },
-                        y: { grid: { color: '#f0f2f5' } }
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, color: '#8a8d91' }
+                        },
+                        y: { 
+                            grid: { color: '#f0f2f5' },
+                            ticks: { font: { size: 10 }, color: '#8a8d91' },
+                            suggestedMin: 397,
+                            suggestedMax: 408
+                        }
                     }
                 }
             });
         }
 
         function renderPieChart() {
-            var ctx = document.getElementById('pieChart').getContext('2d');
-            if(myPieChart) myPieChart.destroy();
+            var canvas = document.getElementById('pieChart');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            
+            if (myPieChart) {
+                myPieChart.destroy();
+            }
 
             myPieChart = new Chart(ctx, {
                 type: 'doughnut',
