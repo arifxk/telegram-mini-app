@@ -82,7 +82,7 @@
         .bottom-nav {
             position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 24px); max-width: 450px; background: #ffffff; border-radius: 24px;
-            display: flex; justify-content: space-around; padding: 8px 0;
+            display: flex; justify-around: space-around; padding: 8px 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 1000;
         }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #8a8d91; text-decoration: none; font-size: 10px; font-weight: 600; }
@@ -280,7 +280,7 @@
                     <div class="table-row"><span class="row-label">Ort. Fiyat</span><span class="row-val">404,39</span></div>
                     <div class="table-row"><span class="row-label">Son/Ort Fiyat Fark</span><span class="row-val" style="color:#e53935;">-0.28%</span></div>
                     <div class="table-row"><span class="row-label">Hacim (Lot)</span><span class="row-val">31.717.255</span></div>
-                    <div class="table-row"><span class="row-label">Hacim (TL)</span><span class="row-val">12.826.265.865₺</span></div>
+                    <div class="table-row"><span class="row-label">Hacim (TL)</span><span class="row-val" id="m-table-hacim">12.826.265.865₺</span></div>
                 </div>
             </div>
 
@@ -374,6 +374,7 @@
 
         var myLineChart = null;
         var myPieChart = null;
+        var activeStockData = null; // O an modalda açık olan hissenin verisi
 
         var tickerData = [
             { name: "USD/TRY", val: "36,40", change: "+0.12%", isUp: true },
@@ -389,26 +390,26 @@
                 id: 0,
                 name: "Favorilerim",
                 stocks: [
-                    { code: "BESTE", name: "BEST BRANDS ENERJİ", price: "33,20₺", change: "4.32%", mcap: "335.335.647₺", time: "18:19:01", isUp: false, color: "#4caf50", letter: "B" },
-                    { code: "ASELS", name: "ASELSAN", price: "403,25₺", change: "0.25%", mcap: "12.826.265.865₺", time: "18:19:01", isUp: true, color: "#0d47a1", letter: "A" },
-                    { code: "TUPRS", name: "TUPRAS", price: "406,75₺", change: "2.91%", mcap: "10.279.968.664₺", time: "18:19:01", isUp: true, color: "#d32f2f", letter: "T" }
+                    { code: "BESTE", name: "BEST BRANDS ENERJİ", price: "33,20₺", change: "-4.32%", mcap: "335.335.647₺", time: "18:19:01", isUp: false, color: "#4caf50", letter: "B" },
+                    { code: "ASELS", name: "ASELSAN", price: "403,25₺", change: "+0.25%", mcap: "12.826.265.865₺", time: "18:19:01", isUp: true, color: "#0d47a1", letter: "A" },
+                    { code: "TUPRS", name: "TUPRAS", price: "406,75₺", change: "+2.91%", mcap: "10.279.968.664₺", time: "18:19:01", isUp: true, color: "#d32f2f", letter: "T" }
                 ]
             },
             {
                 id: 1,
                 name: "BİST 30",
                 stocks: [
-                    { code: "THYAO", name: "TÜRK HAVA YOLLARI", price: "308,50₺", change: "1.80%", mcap: "425.700.000.000₺", time: "18:19:01", isUp: true, color: "#c62828", letter: "THY" },
-                    { code: "GARAN", name: "GARANTİ BBVA", price: "112,30₺", change: "0.45%", mcap: "471.600.000.000₺", time: "18:18:00", isUp: false, color: "#2e7d32", letter: "G" },
-                    { code: "EREGL", name: "EREĞLİ DEMİR ÇELİK", price: "48,20₺", change: "0.92%", mcap: "168.700.000.000₺", time: "18:19:00", isUp: true, color: "#1565c0", letter: "E" }
+                    { code: "THYAO", name: "TÜRK HAVA YOLLARI", price: "308,50₺", change: "+1.80%", mcap: "425.700.000.000₺", time: "18:19:01", isUp: true, color: "#c62828", letter: "THY" },
+                    { code: "GARAN", name: "GARANTİ BBVA", price: "112,30₺", change: "-0.45%", mcap: "471.600.000.000₺", time: "18:18:00", isUp: false, color: "#2e7d32", letter: "G" },
+                    { code: "EREGL", name: "EREĞLİ DEMİR ÇELİK", price: "48,20₺", change: "+0.92%", mcap: "168.700.000.000₺", time: "18:19:00", isUp: true, color: "#1565c0", letter: "E" }
                 ]
             },
             {
                 id: 2,
                 name: "Takip Ettiklerim",
                 stocks: [
-                    { code: "EMPAE", name: "EMPA ELEKTRONİK", price: "75,00₺", change: "2.98%", mcap: "841.560.272₺", time: "18:19:01", isUp: false, color: "#7cb342", letter: "e" },
-                    { code: "ASTOR", name: "ASTOR ENERJİ", price: "94,80₺", change: "2.05%", mcap: "94.600.000.000₺", time: "18:19:01", isUp: false, color: "#ff8f00", letter: "AS" }
+                    { code: "EMPAE", name: "EMPA ELEKTRONİK", price: "75,00₺", change: "-2.98%", mcap: "841.560.272₺", time: "18:19:01", isUp: false, color: "#7cb342", letter: "e" },
+                    { code: "ASTOR", name: "ASTOR ENERJİ", price: "94,80₺", change: "-2.05%", mcap: "94.600.000.000₺", time: "18:19:01", isUp: false, color: "#ff8f00", letter: "AS" }
                 ]
             }
         ];
@@ -498,9 +499,9 @@
                     code: code,
                     name: code + " A.Ş.",
                     price: "50,00₺",
-                    change: "1.00%",
+                    change: "+1.00%",
                     mcap: "10.000.000.000₺",
-                    time: "18:19:00",
+                    time: new Date().toLocaleTimeString(),
                     isUp: true,
                     color: "#007799",
                     letter: code.substring(0, 2)
@@ -537,38 +538,58 @@
                                 '<span>' + randomTitle + '</span>' +
                                 '<span class="news-time">' + formattedTime + '</span>' +
                             '</div>' +
-                            '<div class="news-desc">Piyasa uzmanları gelişmelerin hisse senetleri üzerindeki pozitif etkisini değerlendiriyor.</div>' +
+                            '<div class="news-desc">Piyasalara ilişkin son gelişmeler ve detaylar yakından takip ediliyor.</div>' +
                         '</div>';
             }
             newsContainer.innerHTML = html;
         }
 
         function filterStocks(query) {
-            var q = query.toUpperCase();
-            if(q === "") { renderWatchlist(); return; }
-
+            var q = query.toLowerCase().trim();
+            var cards = document.querySelectorAll('#watchlist .stock-card');
             var currentList = listsData[activeTabIndex].stocks;
-            var filtered = currentList.filter(function(s) {
-                return s.code.indexOf(q) > -1 || s.name.toUpperCase().indexOf(q) > -1;
-            });
-
-            var container = document.getElementById('watchlist');
-            container.innerHTML = '';
-            filtered.forEach(function(item) {
-                var card = document.createElement('div');
-                card.className = 'stock-card';
-                card.onclick = function() { openModal(item); };
-                card.innerHTML = '<div class="stock-left"><div class="stock-logo" style="background-color:' + item.color + '">' + item.letter + '</div><div class="stock-titles"><span class="stock-code">' + item.code + '</span><span class="stock-name">' + item.name + '</span></div></div><div class="stock-right"><span class="stock-price">' + item.price + '</span></div>';
-                container.appendChild(card);
+            
+            cards.forEach(function(card, idx) {
+                var item = currentList[idx];
+                if(item) {
+                    var match = item.code.toLowerCase().includes(q) || item.name.toLowerCase().includes(q);
+                    card.style.display = match ? 'flex' : 'none';
+                }
             });
         }
 
-        function updateClock() {
-            var now = new Date();
-            var h = String(now.getHours()).padStart(2, '0');
-            var m = String(now.getMinutes()).padStart(2, '0');
-            var s = String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('live-clock').innerText = h + ':' + m + ':' + s;
+        /* --- DETAY MODALI VE DİNAMİK VERİ YÜKLEME --- */
+        function openModal(stockItem) {
+            activeStockData = stockItem; // Aktif hisseyi sakla
+            
+            // Telegram Titreşim Efekti
+            if(tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+
+            // MODAL ÜZERİNDEKİ BİLGİLERİ ANINDA DİNAMİK OLARAK GÜNCELLE
+            document.getElementById('m-code').innerText = stockItem.code;
+            document.getElementById('m-title').innerText = stockItem.name;
+            document.getElementById('m-logo').innerText = stockItem.letter;
+            document.getElementById('m-logo').style.backgroundColor = stockItem.color;
+            document.getElementById('m-price').innerText = stockItem.price;
+            
+            var changeEl = document.getElementById('m-change');
+            changeEl.innerText = stockItem.change;
+            changeEl.style.color = stockItem.isUp ? '#00a65a' : '#e53935';
+
+            var hacimEl = document.getElementById('m-table-hacim');
+            if(hacimEl) hacimEl.innerText = stockItem.mcap;
+
+            // Modalı Aç
+            document.getElementById('detail-modal').style.display = 'block';
+
+            // Grafikleri Yeniden Çiz (Takılmayı önlemek için sıfırlayıp baştan çizer)
+            initCharts(stockItem);
+        }
+
+        function closeModal() {
+            document.getElementById('detail-modal').style.display = 'none';
         }
 
         function toggleIndicators() {
@@ -583,133 +604,20 @@
             }
         }
 
-        function openModal(stock) {
-            document.getElementById('m-code').innerText = stock.code;
-            document.getElementById('m-title').innerText = stock.name;
-            document.getElementById('m-price').innerText = stock.price;
-            document.getElementById('m-change').innerText = (stock.isUp ? '+' : '-') + stock.change;
-            document.getElementById('m-change').className = stock.isUp ? 'val-up' : 'val-down';
-            document.getElementById('m-logo').innerText = stock.letter;
-            document.getElementById('m-logo').style.backgroundColor = stock.color;
-
-            // Modalı görünür yap
-            document.getElementById('detail-modal').style.display = 'block';
-
-            // Canvas ve modal yerleşimi oturduktan 60ms sonra grafik çizen güvenli zamanlayıcı
-            setTimeout(function() {
-                renderLineChart();
-                renderPieChart();
-            }, 60);
-        }
-
-        function closeModal() {
-            document.getElementById('detail-modal').style.display = 'none';
-        }
-
-        function renderLineChart() {
-            var canvas = document.getElementById('stockChart');
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            
-            if (myLineChart) {
-                myLineChart.destroy();
-            }
-
-            // Çizgi Altı Yeşil Degrade
-            var gradient = ctx.createLinearGradient(0, 0, 0, 200);
-            gradient.addColorStop(0, 'rgba(0, 166, 90, 0.35)');
-            gradient.addColorStop(1, 'rgba(0, 166, 90, 0.0)');
-
-            myLineChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['09:30', '11:00', '13:00', '15:00', '17:00', '18:10'],
-                    datasets: [{
-                        data: [400.0, 401.5, 399.8, 404.2, 405.8, 403.25],
-                        borderColor: '#00a65a',
-                        borderWidth: 2,
-                        fill: true,
-                        backgroundColor: gradient,
-                        tension: 0.35,
-                        pointRadius: 0,
-                        pointHoverRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: { duration: 300 },
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: true }
-                    },
-                    scales: {
-                        x: { 
-                            grid: { display: false },
-                            ticks: { font: { size: 10 }, color: '#8a8d91' }
-                        },
-                        y: { 
-                            grid: { color: '#f0f2f5' },
-                            ticks: { font: { size: 10 }, color: '#8a8d91' },
-                            suggestedMin: 397,
-                            suggestedMax: 408
-                        }
-                    }
-                }
-            });
-        }
-
-        function renderPieChart() {
-            var canvas = document.getElementById('pieChart');
-            if (!canvas) return;
-            var ctx = canvas.getContext('2d');
-            
-            if (myPieChart) {
-                myPieChart.destroy();
-            }
-
-            myPieChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Özkaynaklar', 'Kısa Vade', 'Uzun Vade'],
-                    datasets: [{
-                        data: [56, 31, 13],
-                        backgroundColor: ['#e91e63', '#3f51b5', '#9c27b0']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } }
-                }
-            });
-        }
-
+        /* --- AYLIK GETİRİ MODALI --- */
         function openMonthlyModal() {
-            var code = document.getElementById('m-code').innerText;
-            document.getElementById('monthly-symbol-title').innerText = "Aylık Getiri — " + code;
+            if(!activeStockData) return;
+            document.getElementById('monthly-symbol-title').innerText = "Aylık Getiri — " + activeStockData.code;
             
-            var months = [
-                { month: "Ağustos 2026", val: "%17,82", up: true },
-                { month: "Temmuz 2026", val: "%0,80", up: true },
-                { month: "Haziran 2026", val: "%9,27", up: false },
-                { month: "Mayıs 2026", val: "%9,52", up: false },
-                { month: "Nisan 2026", val: "%31,23", up: true },
-                { month: "Mart 2026", val: "%0,54", up: true },
-                { month: "Şubat 2026", val: "%6,18", up: true },
-                { month: "Ocak 2026", val: "%30,88", up: true },
-                { month: "Aralık 2025", val: "%26,34", up: true }
-            ];
-
+            var months = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
             var html = '';
             months.forEach(function(m) {
-                var colorCls = m.up ? 'color:#00a65a;' : 'color:#e53935;';
-                html += '<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f0f2f5; font-size:12px; font-weight:600;">' +
-                            '<span>' + m.month + '</span>' +
-                            '<span style="' + colorCls + '">' + m.val + '</span>' +
-                        '</div>';
+                var val = (Math.random() * 20 - 8).toFixed(2);
+                var isPositive = val >= 0;
+                var color = isPositive ? '#00a65a' : '#e53935';
+                var sign = isPositive ? '+' : '';
+                html += '<div class="table-row"><span>' + m + ' 2026</span><span style="font-weight:700; color:' + color + ';">' + sign + val + '%</span></div>';
             });
-
             document.getElementById('monthly-rows').innerHTML = html;
             document.getElementById('monthly-modal').style.display = 'flex';
         }
@@ -718,12 +626,79 @@
             document.getElementById('monthly-modal').style.display = 'none';
         }
 
-        setInterval(updateClock, 1000);
-        renderTicker();
-        renderTabs();
-        renderWatchlist();
-        generate50News();
-        updateClock();
+        /* --- CHART.JS İLE GRAFİK YÖNETİMİ --- */
+        function initCharts(stockItem) {
+            // Eğer önceki grafikler varsa bellekten temizle
+            if (myLineChart) myLineChart.destroy();
+            if (myPieChart) myPieChart.destroy();
+
+            // Çizgi Grafik (Line Chart)
+            var ctxLine = document.getElementById('stockChart').getContext('2d');
+            var basePrice = parseFloat(stockItem.price.replace('₺','').replace('.','').replace(',','.'));
+            var chartData = [
+                basePrice * 0.96, basePrice * 0.98, basePrice * 0.97, 
+                basePrice * 1.01, basePrice * 0.99, basePrice * 1.02, basePrice
+            ];
+
+            myLineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '18:00'],
+                    datasets: [{
+                        label: stockItem.code + ' Fiyat',
+                        data: chartData,
+                        borderColor: stockItem.isUp ? '#00a65a' : '#e53935',
+                        backgroundColor: stockItem.isUp ? 'rgba(0, 166, 90, 0.08)' : 'rgba(229, 57, 53, 0.08)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f0f2f5' } }
+                    }
+                }
+            });
+
+            // Pasta Grafik (Pie Chart)
+            var ctxPie = document.getElementById('pieChart').getContext('2d');
+            myPieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Özkaynaklar', 'Kısa Vade Yük.', 'Uzun Vade Yük.'],
+                    datasets: [{
+                        data: [56, 31, 13],
+                        backgroundColor: ['#e91e63', '#3f51b5', '#9c27b0'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // Canlı Saat
+        setInterval(function() {
+            var el = document.getElementById('live-clock');
+            if(el) el.innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        // UYGULAMA İLKLENDİRME (ONLOAD)
+        window.onload = function() {
+            renderTicker();
+            renderTabs();
+            renderWatchlist();
+            generate50News();
+        };
     </script>
 </body>
 </html>
