@@ -82,14 +82,14 @@
         .bottom-nav {
             position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
             width: calc(100% - 24px); max-width: 450px; background: #ffffff; border-radius: 24px;
-            display: flex; justify-around: space-around; padding: 8px 0;
+            display: flex; justify-content: space-around; padding: 8px 0;
             box-shadow: 0 4px 20px rgba(0,0,0,0.08); z-index: 1000;
         }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: #8a8d91; text-decoration: none; font-size: 10px; font-weight: 600; }
         .nav-item.active { color: #007799; }
         .nav-icon { font-size: 16px; }
 
-        /* DETAY MODAL & DETAY SAYFASI TASARIMI */
+        /* DETAY MODAL */
         #detail-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #f8f9fa; z-index: 2000; overflow-y: auto; padding-bottom: 40px;
@@ -146,7 +146,6 @@
 </head>
 <body>
 
-    <!-- SÜREKLİ KORUNAN ANA FRAME -->
     <div class="header">
         <div class="top-status-bar">
             <div class="market-badge">
@@ -165,13 +164,11 @@
             <div class="settings-btn">⚙️</div>
         </div>
 
-        <!-- OTOMATİK KENDİLİĞİNDEN KAYAN TICKER BANT -->
         <div class="ticker-wrap">
             <div class="ticker-move" id="ticker-content"></div>
         </div>
     </div>
 
-    <!-- DİNAMİK SEKMELER -->
     <div class="list-tabs-container">
         <div class="tabs-header" id="tabs-header"></div>
         <div class="tab-actions">
@@ -180,16 +177,13 @@
         </div>
     </div>
 
-    <!-- HİSSE LİSTESİ -->
     <div class="watchlist" id="watchlist"></div>
 
-    <!-- HABERLER -->
     <div class="tab-button-box">
         <button class="tab-btn-pill">Piyasa Haberleri (50 Güncel)</button>
     </div>
     <div class="news-list" id="news-list"></div>
 
-    <!-- ALT NAV BAR -->
     <div class="bottom-nav">
         <div class="nav-item active"><span class="nav-icon">🏠</span><span>Anasayfa</span></div>
         <div class="nav-item"><span class="nav-icon">🏢</span><span>Kurumsal</span></div>
@@ -197,7 +191,6 @@
         <div class="nav-item"><span class="nav-icon">💬</span><span>Diğer</span></div>
     </div>
 
-    <!-- VİDEODAKİ DETAY SAYFASI MODALI -->
     <div id="detail-modal">
         <div class="modal-header-bar">
             <button class="back-btn" onclick="closeModal()">←</button>
@@ -228,7 +221,6 @@
         </div>
 
         <div class="detail-body">
-            <!-- CANLI MİNİ GRAFİK VE OSİLATÖR NOTU -->
             <div class="chart-box">
                 <div class="chart-container-wrapper">
                     <canvas id="stockChart"></canvas>
@@ -238,7 +230,6 @@
                 </div>
             </div>
 
-            <!-- İNDİKATÖR DEĞERLERİ -->
             <div>
                 <div class="dropdown-box" onclick="toggleIndicators()">
                     <span>📉 İndikatör Değerleri</span>
@@ -255,7 +246,6 @@
                 </div>
             </div>
 
-            <!-- GETİRİ PERFORMANSI -->
             <div>
                 <div class="section-title">GETİRİ PERFORMANSI</div>
                 <div class="grid-3">
@@ -270,7 +260,6 @@
 
             <button class="full-width-btn" onclick="openMonthlyModal()">Aylık Getiriler ➔</button>
 
-            <!-- FİYAT SEVİYELERİ -->
             <div>
                 <div class="section-title">FİYAT SEVİYELERİ</div>
                 <div class="data-table-card">
@@ -284,7 +273,6 @@
                 </div>
             </div>
 
-            <!-- ÇARPANLAR -->
             <div>
                 <div class="section-title">ÇARPANLAR</div>
                 <div class="data-table-card">
@@ -296,7 +284,6 @@
                 </div>
             </div>
 
-            <!-- ŞİRKET ÖZETİ -->
             <div>
                 <div class="section-title">ŞİRKET ÖZETİ</div>
                 <div class="data-table-card">
@@ -314,7 +301,6 @@
                 </div>
             </div>
 
-            <!-- ÖZET GELİR TABLOSU -->
             <div>
                 <div class="section-title">ÖZET GELİR TABLOSU</div>
                 <div class="data-table-card">
@@ -327,7 +313,6 @@
                 </div>
             </div>
 
-            <!-- ÖZET BİLANÇO -->
             <div>
                 <div class="section-title">ÖZET BİLANÇO</div>
                 <div class="data-table-card">
@@ -340,7 +325,6 @@
                 </div>
             </div>
 
-            <!-- KAYNAK DAĞILIMI PASTA GRAFİK -->
             <div>
                 <div class="section-title">KAYNAK DAĞILIMI</div>
                 <div class="data-table-card" style="text-align: center;">
@@ -357,7 +341,6 @@
         </div>
     </div>
 
-    <!-- AYLIK GETİRİLER MODAL -->
     <div id="monthly-modal">
         <div class="monthly-card">
             <div class="monthly-header">
@@ -374,7 +357,7 @@
 
         var myLineChart = null;
         var myPieChart = null;
-        var activeStockData = null; // O an modalda açık olan hissenin verisi
+        var activeStockData = null;
 
         var tickerData = [
             { name: "USD/TRY", val: "36,40", change: "+0.12%", isUp: true },
@@ -558,16 +541,14 @@
             });
         }
 
-        /* --- DETAY MODALI VE DİNAMİK VERİ YÜKLEME --- */
+        /* --- DETAY MODALI --- */
         function openModal(stockItem) {
-            activeStockData = stockItem; // Aktif hisseyi sakla
+            activeStockData = stockItem;
             
-            // Telegram Titreşim Efekti
             if(tg && tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('light');
             }
 
-            // MODAL ÜZERİNDEKİ BİLGİLERİ ANINDA DİNAMİK OLARAK GÜNCELLE
             document.getElementById('m-code').innerText = stockItem.code;
             document.getElementById('m-title').innerText = stockItem.name;
             document.getElementById('m-logo').innerText = stockItem.letter;
@@ -581,10 +562,9 @@
             var hacimEl = document.getElementById('m-table-hacim');
             if(hacimEl) hacimEl.innerText = stockItem.mcap;
 
-            // Modalı Aç
             document.getElementById('detail-modal').style.display = 'block';
 
-            // Grafikleri Yeniden Çiz (Takılmayı önlemek için sıfırlayıp baştan çizer)
+            // Grafikleri Hisseye Özel Verilerle Çiz
             initCharts(stockItem);
         }
 
@@ -604,7 +584,6 @@
             }
         }
 
-        /* --- AYLIK GETİRİ MODALI --- */
         function openMonthlyModal() {
             if(!activeStockData) return;
             document.getElementById('monthly-symbol-title').innerText = "Aylık Getiri — " + activeStockData.code;
@@ -626,46 +605,88 @@
             document.getElementById('monthly-modal').style.display = 'none';
         }
 
-        /* --- CHART.JS İLE GRAFİK YÖNETİMİ --- */
+        /* --- DİNAMİK GRAFİK OLUŞTURUCU (YENİLENDİ) --- */
         function initCharts(stockItem) {
-            // Eğer önceki grafikler varsa bellekten temizle
             if (myLineChart) myLineChart.destroy();
             if (myPieChart) myPieChart.destroy();
 
-            // Çizgi Grafik (Line Chart)
             var ctxLine = document.getElementById('stockChart').getContext('2d');
-            var basePrice = parseFloat(stockItem.price.replace('₺','').replace('.','').replace(',','.'));
-            var chartData = [
-                basePrice * 0.96, basePrice * 0.98, basePrice * 0.97, 
-                basePrice * 1.01, basePrice * 0.99, basePrice * 1.02, basePrice
-            ];
+            
+            // Hisse fiyatını sayısal değere çevir (Örn: "403,25₺" -> 403.25)
+            var currentPrice = parseFloat(stockItem.price.replace('₺','').replace('.','').replace(',','.'));
+            if(isNaN(currentPrice)) currentPrice = 100;
+
+            // Fiyat Değişim Oranını Çek (Örn: "+2.91%" -> 2.91)
+            var changePercent = parseFloat(stockItem.change.replace('%','').replace('+','').replace(',','.'));
+            if(isNaN(changePercent)) changePercent = 1;
+
+            // Gün Başı (Açılış) Fiyatı Hesabı
+            var openPrice = stockItem.isUp ? (currentPrice / (1 + changePercent/100)) : (currentPrice / (1 - Math.abs(changePercent)/100));
+
+            // 7 Zaman Noktası İçin Trende Uygun Rastgele Grafikler Üret
+            var chartData = [];
+            var totalPoints = 7;
+            
+            for(var i = 0; i < totalPoints; i++) {
+                if (i === 0) {
+                    chartData.push(parseFloat(openPrice.toFixed(2)));
+                } else if (i === totalPoints - 1) {
+                    chartData.push(parseFloat(currentPrice.toFixed(2)));
+                } else {
+                    // Lineer Trend Üzerine Küçük Rastgele Dalgalanmalar Ekle
+                    var progress = i / (totalPoints - 1);
+                    var trendPrice = openPrice + (currentPrice - openPrice) * progress;
+                    
+                    // Fiyata göre orantılı rastgele dalgalanma (%0.8 sapma)
+                    var randomFluctuation = (Math.random() - 0.5) * (currentPrice * 0.015);
+                    chartData.push(parseFloat((trendPrice + randomFluctuation).toFixed(2)));
+                }
+            }
+
+            var themeColor = stockItem.isUp ? '#00a65a' : '#e53935';
+            var bgColor = stockItem.isUp ? 'rgba(0, 166, 90, 0.1)' : 'rgba(229, 57, 53, 0.1)';
 
             myLineChart = new Chart(ctxLine, {
                 type: 'line',
                 data: {
-                    labels: ['10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '18:00'],
+                    labels: ['10:00', '11:15', '12:30', '14:00', '15:15', '16:30', '18:00'],
                     datasets: [{
-                        label: stockItem.code + ' Fiyat',
+                        label: stockItem.code + ' Fiyatı',
                         data: chartData,
-                        borderColor: stockItem.isUp ? '#00a65a' : '#e53935',
-                        backgroundColor: stockItem.isUp ? 'rgba(0, 166, 90, 0.08)' : 'rgba(229, 57, 53, 0.08)',
+                        borderColor: themeColor,
+                        backgroundColor: bgColor,
+                        borderWidth: 2,
                         fill: true,
-                        tension: 0.3,
-                        pointRadius: 2
+                        tension: 0.35, // Yumuşak kavisler
+                        pointRadius: 3,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: themeColor
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.parsed.y + ' ₺'; }
+                            }
+                        }
+                    },
                     scales: {
                         x: { grid: { display: false } },
-                        y: { grid: { color: '#f0f2f5' } }
+                        y: { 
+                            grid: { color: '#f0f2f5' },
+                            ticks: {
+                                callback: function(value) { return value.toFixed(2) + '₺'; }
+                            }
+                        }
                     }
                 }
             });
 
-            // Pasta Grafik (Pie Chart)
+            // Pasta Grafik
             var ctxPie = document.getElementById('pieChart').getContext('2d');
             myPieChart = new Chart(ctxPie, {
                 type: 'doughnut',
@@ -686,13 +707,11 @@
             });
         }
 
-        // Canlı Saat
         setInterval(function() {
             var el = document.getElementById('live-clock');
             if(el) el.innerText = new Date().toLocaleTimeString();
         }, 1000);
 
-        // UYGULAMA İLKLENDİRME (ONLOAD)
         window.onload = function() {
             renderTicker();
             renderTabs();
